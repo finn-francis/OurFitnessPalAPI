@@ -4,6 +4,7 @@ defmodule OurFitnessPalApiWeb.ExerciseViewTest do
 
   alias OurFitnessPalApiWeb.ExerciseView
   alias OurFitnessPalApi.Factory
+  alias OurFitnessPalApi.Workouts
 
   test "exercise_json" do
     exercise = Factory.insert(:exercise)
@@ -33,6 +34,16 @@ defmodule OurFitnessPalApiWeb.ExerciseViewTest do
 
     assert rendered_exercise == %{
       exercise: ExerciseView.exercise_json(exercise)
+    }
+  end
+
+  test "errors.json" do
+    exercise = %{name: "", description: ""}
+    {_error, changeset} = Workouts.create_exercise(exercise)
+
+    rendered_errors = ExerciseView.render("errors.json", %{changeset: changeset})
+    assert rendered_errors == %{
+      errors: ExerciseView.translate_errors(changeset)
     }
   end
 end
