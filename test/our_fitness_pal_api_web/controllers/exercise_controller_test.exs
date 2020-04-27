@@ -105,4 +105,19 @@ defmodule OurFitnessPalApiWeb.ExerciseControllerTest do
       }
     }
   end
+
+  test "#delete removes an exercise record and returns a list of exercises" do
+    conn = build_conn()
+    exercise = Factory.insert(:exercise)
+
+    conn = delete conn, Routes.exercise_path(conn, :delete, exercise)
+
+    exercises = Workouts.list_exercises
+
+    assert exercises == []
+
+    assert json_response(conn, 200) == %{
+      "exercises" => []
+    }
+  end
 end
