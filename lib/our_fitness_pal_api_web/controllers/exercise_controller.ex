@@ -22,4 +22,15 @@ defmodule OurFitnessPalApiWeb.ExerciseController do
         render conn, "errors.json", changeset: changeset
     end
   end
+
+  def update(conn, %{"id" => exercise_id, "exercise" => exercise}) do
+    old_exercise = Workouts.get_exercise!(exercise_id)
+    case Workouts.update_exercise(old_exercise, exercise) do
+      {:ok, _exercise} ->
+        exercises = Workouts.list_exercises
+        render conn, "index.json", exercises: exercises
+      {:error, changeset} ->
+        render conn, "errors.json", changeset: changeset
+    end
+  end
 end
