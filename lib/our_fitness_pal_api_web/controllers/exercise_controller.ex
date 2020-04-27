@@ -5,6 +5,11 @@ defmodule OurFitnessPalApiWeb.ExerciseController do
 
   def index(conn, _params) do
     exercises = Workouts.list_exercises
-    json(conn, %{"exercises" => exercises})
+    render conn, "index.json", exercises: exercises
+  end
+
+  def show(conn, %{"id" => id}) do
+    exercise = Workouts.get_exercise!(id)
+    render(conn, "show.json", exercise: exercise)
   end
 end
