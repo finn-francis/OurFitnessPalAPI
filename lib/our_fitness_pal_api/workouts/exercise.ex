@@ -2,7 +2,7 @@ defmodule OurFitnessPalApi.Workouts.Exercise do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @derive {Jason.Encoder, only: [:name, :description]}
+  @derive {Jason.Encoder, only: [:id, :name, :description]}
 
   schema "exercises" do
     field :description, :string

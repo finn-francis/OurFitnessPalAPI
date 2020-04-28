@@ -18,6 +18,7 @@ defmodule OurFitnessPalApiWeb.ExerciseControllerTest do
       "exercises" => [%{
         "name" => exercise.name,
         "description" => exercise.description,
+        "id" => exercise.id
       }]
     }
   end
@@ -31,7 +32,8 @@ defmodule OurFitnessPalApiWeb.ExerciseControllerTest do
     assert json_response(conn, 200) == %{
       "exercise" => %{
         "name" => exercise.name,
-        "description" => exercise.description
+        "description" => exercise.description,
+        "id" => exercise.id
       }
     }
   end
@@ -48,6 +50,7 @@ defmodule OurFitnessPalApiWeb.ExerciseControllerTest do
       "exercises" => [%{
         "name" => exercise.name,
         "description" => exercise.description,
+        "id" => exercise.id
       }]
     }
   end
@@ -83,6 +86,7 @@ defmodule OurFitnessPalApiWeb.ExerciseControllerTest do
       "exercises" => [%{
         "name" => updated_exercise.name,
         "description" => updated_exercise.description,
+        "id" => exercise.id
       }]
     }
   end
