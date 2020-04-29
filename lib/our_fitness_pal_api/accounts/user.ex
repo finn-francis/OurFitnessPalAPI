@@ -1,6 +1,7 @@
 defmodule OurFitnessPalApi.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
+  alias OurFitnessPalApi.Accounts.User
 
   import Comeonin.Bcrypt, only: [hashpwsalt: 1]
 
