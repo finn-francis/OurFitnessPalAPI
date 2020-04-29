@@ -6,9 +6,11 @@ defmodule OurFitnessPalApi.AccountsTest do
   describe "users" do
     alias OurFitnessPalApi.Accounts.User
 
-    @valid_attrs %{email: "some email", password_hash: "some password_hash"}
-    @update_attrs %{email: "some updated email", password_hash: "some updated password_hash"}
-    @invalid_attrs %{email: nil, password_hash: nil}
+    @valid_attrs %{email: "email@email.com", password: "password", password_confirmation: "password"}
+    @update_attrs %{email: "updated.email@email.com"}
+    @blank_attrs %{email: nil, password: nil, password_confirmation: ""}
+    @too_short_password_attrs %{email: "email@email.com", password: "passwor", password_confirmation: "passwor"}
+    @not_matching_confirmation_attrs %{email: "email@email.com", password: "password", password_confirmation: "password1"}
 
     def user_fixture(attrs \\ %{}) do
       {:ok, user} =
@@ -19,37 +21,59 @@ defmodule OurFitnessPalApi.AccountsTest do
       user
     end
 
-    test "list_users/0 returns all users" do
+    test "list_users/0 returns all users without their password" do
       user = user_fixture()
-      assert Accounts.list_users() == [user]
+      assert Accounts.list_users() == [{user.id, user.email, user.inserted_at, user.updated_at}]
     end
 
     test "get_user!/1 returns the user with given id" do
       user = user_fixture()
-      assert Accounts.get_user!(user.id) == user
+      assert Accounts.get_user!(user.id) == {user.id, user.email, user.inserted_at, user.updated_at}
     end
 
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
-      assert user.email == "some email"
-      assert user.password_hash == "some password_hash"
+      assert user.email == @valid_attrs.email
+      assert user.password_hash != @valid_attrs.password
     end
 
-    test "create_user/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
+    test "create_user/1 with blank attributes returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@blank_attrs)
+    end
+
+    test "create_user/1 with too short password attributes returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@too_short_password_attrs)
+    end
+
+    test "create_user/1 password fields that don't match returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@not_matching_confirmation_attrs)
     end
 
     test "update_user/2 with valid data updates the user" do
       user = user_fixture()
       assert {:ok, %User{} = user} = Accounts.update_user(user, @update_attrs)
-      assert user.email == "some updated email"
-      assert user.password_hash == "some updated password_hash"
+      assert user.email == @update_attrs.email
     end
 
-    test "update_user/2 with invalid data returns error changeset" do
+    test "update_user/2 with blank attributes returns error changeset" do
       user = user_fixture()
-      assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @invalid_attrs)
-      assert user == Accounts.get_user!(user.id)
+      assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @blank_attrs)
+      {_, user_email, _, _} = Accounts.get_user!(user.id)
+      assert user.email == user_email
+    end
+
+    test "update_user/2 with too short password attributes returns error changeset" do
+      user = user_fixture()
+      assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @too_short_password_attrs)
+      {_, user_email, _, _} = Accounts.get_user!(user.id)
+      assert user.email == user_email
+    end
+
+    test "update_user/2 with password fields that don't match returns error changeset" do
+      user = user_fixture()
+      assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @not_matching_confirmation_attrs)
+      {_, user_email, _, _} = Accounts.get_user!(user.id)
+      assert user.email == user_email
     end
 
     test "delete_user/1 deletes the user" do
