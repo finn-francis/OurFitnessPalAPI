@@ -44,7 +44,9 @@ defmodule OurFitnessPalApi.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:ex_machina, "~> 2.4"},
-      {:cors_plug, "~> 2.0"}
+      {:cors_plug, "~> 2.0"},
+      {:ueberauth_identity, "~> 0.2"},
+      {:guardian, "~> 2.0"}
     ]
   end
 
