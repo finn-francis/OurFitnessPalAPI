@@ -18,7 +18,9 @@ defmodule OurFitnessPalApi.Accounts do
 
   """
   def list_users do
-    Repo.all(User)
+    query = from user in User,
+      select: {user.id, user.email, user.inserted_at, user.updated_at}
+    Repo.all(query)
   end
 
   @doc """
@@ -35,7 +37,11 @@ defmodule OurFitnessPalApi.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_user!(id) do
+    query = from user in User,
+      select: {user.id, user.email, user.inserted_at, user.updated_at}
+    Repo.get!(query, id)
+  end
 
   @doc """
   Creates a user.
