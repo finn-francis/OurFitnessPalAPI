@@ -2,8 +2,8 @@ use Mix.Config
 
 # Configure your database
 config :our_fitness_pal_api, OurFitnessPalApi.Repo,
-  username: "benjaminhornsby",
-  password: "",
+  username: "postgres",
+  password: "postgres",
   database: "our_fitness_pal_api_dev",
   hostname: "localhost",
   show_sensitive_data_on_connection_error: true,
@@ -55,3 +55,19 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :cors_plug,
+  origin: ["http://localhost:3000"],
+  max_age: 86400,
+  methods: ["GET", "POST"]
+
+case File.read("./config/dev.secret.exs") do
+  {:ok, _file} -> import_config("dev.secret.exs")
+  {:error, _message} ->
+    raise """
+    dev.secret.exs is missing.
+    Generate it using:
+
+    echo "use Mix.Config" > config/dev.secret.exs
+    """
+end

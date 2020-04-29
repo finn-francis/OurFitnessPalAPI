@@ -1,5 +1,6 @@
 # The directory Mix will write compiled artifacts to.
 /_build/
+.elixir_ls/
 
 # If you run "mix test --cover", coverage assets end up here.
 /cover/
@@ -26,3 +27,6 @@ our_fitness_pal_api-*.tar
 # we ignore priv/static. You may want to comment
 # this depending on your deployment strategy.
 /priv/static/
+
+# Ignore secret files
+/config/dev.secret.exs

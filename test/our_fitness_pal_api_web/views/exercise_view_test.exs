@@ -13,7 +13,8 @@ defmodule OurFitnessPalApiWeb.ExerciseViewTest do
 
     assert rendered_exercise == %{
       name: exercise.name,
-      description: exercise.description
+      description: exercise.description,
+      id: exercise.id
     }
   end
 

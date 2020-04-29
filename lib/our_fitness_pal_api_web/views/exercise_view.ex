@@ -17,6 +17,7 @@ defmodule OurFitnessPalApiWeb.ExerciseView do
 
   def exercise_json(exercise) do
     %{
+      id: exercise.id,
       name: exercise.name,
       description: exercise.description
     }
