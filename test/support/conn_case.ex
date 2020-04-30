@@ -38,6 +38,21 @@ defmodule OurFitnessPalApiWeb.ConnCase do
       Ecto.Adapters.SQL.Sandbox.mode(OurFitnessPalApi.Repo, {:shared, self()})
     end
 
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    conn = if tags[:authenticated] do
+      add_user(Phoenix.ConnTest.build_conn(), tags[:user])
+    else
+      Phoenix.ConnTest.build_conn()
+    end
+
+    {:ok, conn: conn}
+  end
+
+  def add_user(conn, type) do
+    {:ok, user} = OurFitnessPalApi.Accounts.create_user(%{
+      email: "email@fake.com",
+      password: "password",
+      password_confirmation: "password"
+    })
+    OurFitnessPalApi.Guardian.Plug.sign_in(conn, user)
   end
 end
