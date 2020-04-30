@@ -9,6 +9,7 @@ defmodule OurFitnessPalApiWeb.Router do
     pipe_through :api
 
     resources "/users", UserController, only: [:create, :show]
+    post "/sign_in", UserController, :sign_in
     resources "/exercises", ExerciseController, except: [:new, :edit]
   end
 
