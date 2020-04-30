@@ -20,9 +20,10 @@ defmodule OurFitnessPalApiWeb.UserControllerTest do
   end
 
   describe "create user" do
-    test "renders user when data is valid", %{conn: conn} do
+    test "renders a jwt when data is valid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+      %{"jwt" => token} = json_response(conn, 200)
+      assert {:ok, claims} = OurFitnessPalApi.Guardian.decode_and_verify(token)
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
