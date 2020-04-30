@@ -1,16 +1,28 @@
 defmodule OurFitnessPalApiWeb.Router do
   use OurFitnessPalApiWeb, :router
 
+  alias OurFitnessPalApi.Guardian
+
   pipeline :api do
     plug :accepts, ["json"]
+  end
+
+  pipeline :jwt_authenticated do
+    plug Guardian.AuthPipeline
   end
 
   scope "/api/v1", OurFitnessPalApiWeb do
     pipe_through :api
 
-    resources "/users", UserController, only: [:create, :show]
+    resources "/users", UserController, only: [:create]
     post "/sign_in", UserController, :sign_in
-    resources "/exercises", ExerciseController, except: [:new, :edit]
+    resources "/exercises", ExerciseController, only: [:index, :show]
+  end
+
+  scope "/api/v1", OurFitnessPalApiWeb do
+    pipe_through [:api, :jwt_authenticated]
+
+    resources "/exercises", ExerciseController, only: [:create, :update, :delete]
   end
 
   # Enables LiveDashboard only for development
