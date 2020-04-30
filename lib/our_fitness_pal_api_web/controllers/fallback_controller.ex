@@ -19,4 +19,10 @@ defmodule OurFitnessPalApiWeb.FallbackController do
     |> put_view(OurFitnessPalApiWeb.ErrorView)
     |> render(:"404")
   end
+
+  def call(conn, {:error, :unauthorized}) do
+    conn
+    |> put_status(:unauthorized)
+    |> json(%{error: "Wrong password"})
+  end
 end
