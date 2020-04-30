@@ -5,9 +5,10 @@ defmodule OurFitnessPalApiWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", OurFitnessPalApiWeb do
+  scope "/api/v1", OurFitnessPalApiWeb do
     pipe_through :api
 
+    resources "/users", UserController, only: [:create, :show]
     resources "/exercises", ExerciseController, except: [:new, :edit]
   end
 
