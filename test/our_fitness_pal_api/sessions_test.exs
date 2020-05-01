@@ -11,19 +11,22 @@ defmodule OurFitnessPalApi.SessionsTest do
     @update_attrs %{description: "some updated description", name: "some updated name"}
     @invalid_attrs %{description: nil, name: nil }
 
-    def user_fixture do
+    @user_attrs %{email: "email@email.com", password: "password", password_confirmation: "password"}
+
+    def user_fixture(attrs \\ %{}) do
       {:ok, user} =
-        %{email: "email@email.com", password: "password", password_confirmation: "password"}
+        attrs
+        |> Enum.into(@user_attrs)
         |> Accounts.create_user()
 
       user
     end
 
-    def session_fixture(attrs \\ %{}) do
+    def session_fixture(attrs \\ %{}, user \\ user_fixture()) do
       {:ok, session} =
         attrs
         |> Enum.into(@valid_attrs)
-        |> Sessions.create_session(user_fixture())
+        |> Sessions.create_session(user)
 
       session
     end
@@ -31,6 +34,27 @@ defmodule OurFitnessPalApi.SessionsTest do
     test "list_sessions/0 returns all sessions" do
       session = session_fixture()
       assert Sessions.list_sessions() == [session]
+    end
+
+    test "list_sessions/1 with a user struct argument" do
+      user = user_fixture()
+      other_user = user_fixture(%{email: "otheruser@email.com"})
+      session = session_fixture(%{}, user)
+      other_session = session_fixture(%{}, other_user)
+
+      assert [session] == Sessions.list_sessions(user)
+      assert [other_session] == Sessions.list_sessions(other_user)
+    end
+
+    @tag timeout: :infinity
+    test "list_sessions/1 with a user_id argument" do
+      user = user_fixture()
+      other_user = user_fixture(%{email: "otheruser@email.com"})
+      session = session_fixture(%{}, user)
+      other_session = session_fixture(%{}, other_user)
+
+      assert [session] == Sessions.list_sessions(user.id)
+      assert [other_session] == Sessions.list_sessions(other_user.id)
     end
 
     test "get_session!/1 returns the session with given id" do

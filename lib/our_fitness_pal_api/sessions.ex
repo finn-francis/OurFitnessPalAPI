@@ -14,6 +14,12 @@ defmodule OurFitnessPalApi.Sessions do
     Repo.all(Session)
   end
 
+  def list_sessions(user) when is_map(user), do: Repo.preload(user, :sessions).sessions
+
+  def list_sessions(user) when is_integer(user) do
+    from(session in Session, where: session.user_id == ^user) |> Repo.all
+  end
+
   @doc """
   Gets a single session.
 
