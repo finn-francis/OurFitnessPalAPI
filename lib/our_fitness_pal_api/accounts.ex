@@ -39,7 +39,7 @@ defmodule OurFitnessPalApi.Accounts do
   """
   def get_user!(id) do
     query = from user in User,
-      select: {user.id, user.email, user.inserted_at, user.updated_at}
+      select: struct(user, [:id, :email, :inserted_at, :updated_at])
     Repo.get!(query, id)
   end
 

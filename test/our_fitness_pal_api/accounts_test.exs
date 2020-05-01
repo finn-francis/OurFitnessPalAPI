@@ -28,7 +28,8 @@ defmodule OurFitnessPalApi.AccountsTest do
 
     test "get_user!/1 returns the user with given id" do
       user = user_fixture()
-      assert Accounts.get_user!(user.id) == {user.id, user.email, user.inserted_at, user.updated_at}
+      result_user = Accounts.get_user!(user.id)
+      assert {user.id, user.email} == {result_user.id, result_user.email}
     end
 
     test "create_user/1 with valid data creates a user" do
@@ -58,21 +59,21 @@ defmodule OurFitnessPalApi.AccountsTest do
     test "update_user/2 with blank attributes returns error changeset" do
       user = user_fixture()
       assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @blank_attrs)
-      {_, user_email, _, _} = Accounts.get_user!(user.id)
+      %User{email: user_email} = Accounts.get_user!(user.id)
       assert user.email == user_email
     end
 
     test "update_user/2 with too short password attributes returns error changeset" do
       user = user_fixture()
       assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @too_short_password_attrs)
-      {_, user_email, _, _} = Accounts.get_user!(user.id)
+      %User{email: user_email} = Accounts.get_user!(user.id)
       assert user.email == user_email
     end
 
     test "update_user/2 with password fields that don't match returns error changeset" do
       user = user_fixture()
       assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @not_matching_confirmation_attrs)
-      {_, user_email, _, _} = Accounts.get_user!(user.id)
+      %User{email: user_email} = Accounts.get_user!(user.id)
       assert user.email == user_email
     end
 
