@@ -61,6 +61,14 @@ defmodule OurFitnessPalApi.Accounts do
     |> Repo.insert()
   end
 
+  def find_or_create_user(%{email: email} = attrs) do
+    case Repo.get_by(User, email: email) do
+      nil ->
+        %User{} |> User.changeset(attrs) |> Repo.insert
+      user -> {:ok, user}
+    end
+  end
+
   @doc """
   Updates a user.
 

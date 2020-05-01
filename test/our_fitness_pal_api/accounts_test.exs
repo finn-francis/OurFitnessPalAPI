@@ -86,5 +86,20 @@ defmodule OurFitnessPalApi.AccountsTest do
       user = user_fixture()
       assert %Ecto.Changeset{} = Accounts.change_user(user)
     end
+
+    test "find_or_create_user with an existing user returns the current user" do
+      user = Repo.get!(User, user_fixture().id)
+      original_count = Repo.aggregate(User, :count)
+
+      assert {:ok, user} == Accounts.find_or_create_user(@valid_attrs)
+      assert Repo.aggregate(User, :count) == original_count
+    end
+
+    test "find_or_create_user without an existing user creates a new user" do
+      original_count = Repo.aggregate(User, :count)
+
+      assert {:ok, user} = Accounts.find_or_create_user(@valid_attrs)
+      assert Repo.aggregate(User, :count) == original_count + 1
+    end
   end
 end
