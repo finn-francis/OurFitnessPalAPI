@@ -30,6 +30,14 @@ defmodule OurFitnessPalApiWeb.SessionController do
     render(conn, "show.json", session: session)
   end
 
+  def update(conn, %{"id" => id, "session" => session_params}) do
+    session = Sessions.get_session!(id)
+
+    with {:ok, %Session{} = session} <- Sessions.update_session(session, session_params) do
+      render(conn, "show.json", session: session)
+    end
+  end
+
   # TODO (Finn): remove this once we have a current user plug, this is temporary to allow testing on session
   defp current_user do
     Repo.one(from u in User, limit: 1)
