@@ -37,21 +37,20 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
   describe "index" do
     setup [:create_session]
 
-    test "lists all sessions", %{conn: conn} do
+    test "lists all sessions", %{conn: conn, session: %Session{id: id, name: name, description: description}} do
       conn = get(conn, Routes.session_path(conn, :index))
-      assert [%{"description" => "some description", "name" => "some name"}] = json_response(conn, 200)["data"]
+      assert [%{"id" => ^id, "description" => ^description, "name" => ^name}] = json_response(conn, 200)["data"]
     end
   end
 
   describe "create session" do
     setup [:create_user]
 
-    test "renders session when data is valid", %{conn: conn, user: user} do
+    test "renders session when data is valid", %{conn: conn, user: %{id: user_id}} do
       conn = post(conn, Routes.session_path(conn, :create), session: @create_attrs)
       assert %{"id" => id, "name" => name, "description" => description} = json_response(conn, 201)["data"]
 
-      session = Sessions.get_session!(id)
-      assert {session.id, session.name, session.description, session.user_id} == {id, name, description, user.id}
+      assert %Session{id: ^id, name: ^name, description: ^description, user_id: ^user_id} = Sessions.get_session!(id)
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
@@ -65,8 +64,8 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
 
     test "renders a sesson", %{conn: conn, session: session} do
       conn = get(conn, Routes.session_path(conn, :show, session))
-      response = json_response(conn, 200)["data"]
-      assert {session.id, session.name, session.description} == {response["id"], response["name"], response["description"]}
+      %{"id" => id, "name" => name, "description" => description} = json_response(conn, 200)["data"]
+      assert %Session{id: ^id, name: ^name, description: ^description} = session
     end
   end
 
