@@ -10,6 +10,7 @@ defmodule OurFitnessPalApiWeb.Router do
 
     resources "/users", UserController, only: [:create, :show]
     resources "/exercises", ExerciseController, except: [:new, :edit]
+    resources "/sessions", SessionController, only: [:index]
   end
 
   # Enables LiveDashboard only for development
