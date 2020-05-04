@@ -43,8 +43,39 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
     end
   end
 
+  describe "create session" do
+    setup [:create_user]
+
+    test "renders session when data is valid", %{conn: conn, user: user} do
+      conn = post(conn, Routes.session_path(conn, :create), session: @create_attrs)
+      assert %{"id" => id, "name" => name, "description" => description} = json_response(conn, 201)["data"]
+
+      session = Sessions.get_session!(id)
+      assert {session.id, session.name, session.description, session.user_id} == {id, name, description, user.id}
+    end
+
+    test "renders errors when data is invalid", %{conn: conn} do
+      conn = post(conn, Routes.session_path(conn, :create), session: @invalid_attrs)
+      assert json_response(conn, 422)["errors"] != %{}
+    end
+  end
+
+  describe "show" do
+    setup [:create_session]
+
+    test "renders a sesson", %{conn: conn, session: session} do
+      conn = get(conn, Routes.session_path(conn, :show, session))
+      response = json_response(conn, 200)["data"]
+      assert {session.id, session.name, session.description} == {response["id"], response["name"], response["description"]}
+    end
+  end
+
   defp create_session(_) do
     session = fixture(:session)
     %{session: session}
+  end
+
+  defp create_user(_) do
+    %{user: user_fixture()}
   end
 end
