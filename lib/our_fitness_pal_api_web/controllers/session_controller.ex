@@ -38,6 +38,14 @@ defmodule OurFitnessPalApiWeb.SessionController do
     end
   end
 
+  def delete(conn, %{"id" => id}) do
+    session = Sessions.get_session!(id)
+
+    with {:ok, %Session{}} <- Sessions.delete_session(session) do
+      send_resp(conn, :no_content, "")
+    end
+  end
+
   # TODO (Finn): remove this once we have a current user plug, this is temporary to allow testing on session
   defp current_user do
     Repo.one(from u in User, limit: 1)
