@@ -15,16 +15,17 @@ defmodule OurFitnessPalApiWeb.UserController do
   def create(conn, %{"user" => user_params}) do
     with {:ok, %User{} = user} <- Accounts.create_user(user_params),
          {:ok, token, _claims} <- Guardian.encode_and_sign(user) do
-      conn |> render("jwt.json", jwt: token)
+      conn |> render("jwt.json", %{jwt: token, user: %{id: user.id, email: user.email}})
     end
   end
 
-  def sign_in(conn, %{"email" => email, "password" => password}) do
-    case Accounts.token_sign_in(email, password) do
-      {:ok, token, _claims} ->
-        conn |> render("jwt.json", jwt: token)
-      _ ->
-        {:error, :unauthorized}
+  def sign_in(conn, %{"user" => %{"email" => email, "password" => password}}) do
+    with {:ok, token, claims} <- Accounts.token_sign_in(email, password),
+         {:ok, user} <- Guardian.resource_from_claims(claims)
+    do
+      conn |> render("jwt.json", %{jwt: token, user: %{id: user.id, email: user.email}})
+    else
+      _ -> {:error, :unauthorized}
     end
   end
 end
