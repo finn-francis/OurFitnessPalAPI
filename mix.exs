@@ -45,7 +45,8 @@ defmodule OurFitnessPalApi.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:ex_machina, "~> 2.4"},
       {:cors_plug, "~> 2.0"},
-      {:ueberauth_identity, "~> 0.2"},
+      {:comeonin, "~> 5.0"},
+      {:bcrypt_elixir, "~> 2.0"},
       {:guardian, "~> 2.0"}
     ]
   end

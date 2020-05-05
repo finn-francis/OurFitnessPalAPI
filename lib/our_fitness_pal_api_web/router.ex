@@ -5,10 +5,13 @@ defmodule OurFitnessPalApiWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", OurFitnessPalApiWeb do
+  scope "/api/v1", OurFitnessPalApiWeb do
     pipe_through :api
 
+    resources "/users", UserController, only: [:create, :show]
+    post "/sign_in", UserController, :sign_in
     resources "/exercises", ExerciseController, except: [:new, :edit]
+    resources "/sessions", SessionController, except: [:new, :edit]
   end
 
   # Enables LiveDashboard only for development
