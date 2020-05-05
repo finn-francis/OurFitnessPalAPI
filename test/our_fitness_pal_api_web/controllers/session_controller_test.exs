@@ -1,9 +1,12 @@
 defmodule OurFitnessPalApiWeb.SessionControllerTest do
   use OurFitnessPalApiWeb.ConnCase
 
+  import Ecto.Query, warn: false
+
   alias OurFitnessPalApi.Sessions
   alias OurFitnessPalApi.Sessions.Session
   alias OurFitnessPalApi.Accounts
+  alias OurFitnessPalApi.Repo
 
   @create_attrs %{
     description: "some description",
@@ -37,6 +40,7 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
   describe "index" do
     setup [:create_session]
 
+    @tag :authenticated
     test "lists all sessions", %{conn: conn, session: %Session{id: id, name: name, description: description}} do
       conn = get(conn, Routes.session_path(conn, :index))
       assert [%{"id" => ^id, "description" => ^description, "name" => ^name}] = json_response(conn, 200)["data"]
@@ -44,15 +48,16 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
   end
 
   describe "create session" do
-    setup [:create_user]
-
-    test "renders session when data is valid", %{conn: conn, user: %{id: user_id}} do
+    @tag :authenticated
+    test "renders session when data is valid", %{conn: conn} do
+      user_id = (find_authenticated_user()).id
       conn = post(conn, Routes.session_path(conn, :create), session: @create_attrs)
       assert %{"id" => id, "name" => name, "description" => description} = json_response(conn, 201)["data"]
 
       assert %Session{id: ^id, name: ^name, description: ^description, user_id: ^user_id} = Sessions.get_session!(id)
     end
 
+    @tag :authenticated
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.session_path(conn, :create), session: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
@@ -62,6 +67,7 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
   describe "show" do
     setup [:create_session]
 
+    @tag :authenticated
     test "renders a sesson", %{conn: conn, session: session} do
       conn = get(conn, Routes.session_path(conn, :show, session))
       %{"id" => id, "name" => name, "description" => description} = json_response(conn, 200)["data"]
@@ -72,19 +78,22 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
   describe "update session" do
     setup [:create_session]
 
-    test "renders session when data is valid", %{conn: conn, session: %Session{id: id} = session} do
+    @tag :authenticated
+    test "renders session when data is valid", %{conn: conn, session: session} do
       conn = put(conn, Routes.session_path(conn, :update, session), session: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
-
-      conn = get(conn, Routes.session_path(conn, :show, id))
 
       assert %{
                "id" => id,
                "description" => "some updated description",
                "name" => "some updated name"
              } = json_response(conn, 200)["data"]
+
+      updated_session = Sessions.get_session!(id)
+      assert updated_session.name == @update_attrs.name
+      assert updated_session.description == @update_attrs.description
     end
 
+    @tag :authenticated
     test "renders errors when data is invalid", %{conn: conn, session: session} do
       conn = put(conn, Routes.session_path(conn, :update, session), session: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
@@ -94,13 +103,13 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
   describe "delete session" do
     setup [:create_session]
 
+    @tag :authenticated
     test "deletes chosen session", %{conn: conn, session: session} do
       conn = delete(conn, Routes.session_path(conn, :delete, session))
       assert response(conn, 204)
 
-      assert_error_sent 404, fn ->
-        get(conn, Routes.session_path(conn, :show, session))
-      end
+
+      assert Repo.get(Session, session.id) == nil
     end
   end
 
@@ -109,7 +118,7 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
     %{session: session}
   end
 
-  defp create_user(_) do
-    %{user: user_fixture()}
+  defp find_authenticated_user do
+    Accounts.User |> last |> Repo.one
   end
 end
