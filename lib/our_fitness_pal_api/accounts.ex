@@ -4,7 +4,7 @@ defmodule OurFitnessPalApi.Accounts do
   """
 
   import Ecto.Query, warn: false
-  import Comeonin.Bcrypt, only: [checkpw: 2, dummy_checkpw: 0]
+  import Bcrypt, only: [verify_pass: 2]
 
   alias OurFitnessPalApi.Repo
   alias OurFitnessPalApi.Guardian
@@ -135,7 +135,6 @@ defmodule OurFitnessPalApi.Accounts do
   defp get_by_email(email) when is_binary(email) do
     case Repo.get_by(User, email: email) do
       nil ->
-        dummy_checkpw()
         {:error, :invalid_password}
       user ->
         {:ok, user}
@@ -143,7 +142,7 @@ defmodule OurFitnessPalApi.Accounts do
   end
 
   defp verify_password(password, %User{} = user) when is_binary(password) do
-    if checkpw(password, user.password_hash) do
+    if verify_pass(password, user.password_hash) do
       {:ok, user}
     else
       {:error, :invalid_password}

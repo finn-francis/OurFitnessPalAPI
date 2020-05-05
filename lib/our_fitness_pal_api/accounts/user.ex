@@ -3,7 +3,7 @@ defmodule OurFitnessPalApi.Accounts.User do
   import Ecto.Changeset
   alias OurFitnessPalApi.Accounts.User
 
-  import Comeonin.Bcrypt, only: [hashpwsalt: 1]
+  import Bcrypt, only: [hash_pwd_salt: 1]
 
   schema "users" do
     field :email, :string
@@ -33,7 +33,7 @@ defmodule OurFitnessPalApi.Accounts.User do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: pass}}
         ->
-          put_change(changeset,:password_hash, hashpwsalt(pass))
+          put_change(changeset,:password_hash, hash_pwd_salt(pass))
       _
         ->
           changeset
