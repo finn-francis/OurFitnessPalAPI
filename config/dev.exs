@@ -59,7 +59,7 @@ config :phoenix, :plug_init_mode, :runtime
 config :cors_plug,
   origin: ["http://localhost:3000"],
   max_age: 86400,
-  methods: ["GET", "POST"]
+  methods: ["GET", "POST", "PUT", "DELETE"]
 
 case File.read("./config/dev.secret.exs") do
   {:ok, _file} -> import_config("dev.secret.exs")

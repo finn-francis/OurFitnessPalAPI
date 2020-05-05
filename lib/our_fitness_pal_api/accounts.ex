@@ -41,7 +41,7 @@ defmodule OurFitnessPalApi.Accounts do
   """
   def get_user!(id) do
     query = from user in User,
-      select: {user.id, user.email, user.inserted_at, user.updated_at}
+      select: struct(user, [:id, :email, :inserted_at, :updated_at])
     Repo.get!(query, id)
   end
 
@@ -61,6 +61,14 @@ defmodule OurFitnessPalApi.Accounts do
     %User{}
     |> User.changeset(attrs)
     |> Repo.insert()
+  end
+
+  def find_or_create_user(%{email: email} = attrs) do
+    case Repo.get_by(User, email: email) do
+      nil ->
+        %User{} |> User.changeset(attrs) |> Repo.insert
+      user -> {:ok, user}
+    end
   end
 
   @doc """
