@@ -35,20 +35,20 @@ defmodule OurFitnessPalApiWeb.UserControllerTest do
   describe "sign in" do
     test "renders a jwt when sign information is valid", %{conn: conn} do
       fixture(:user)
-      conn = post(conn, Routes.user_path(conn, :sign_in), %{email: @create_attrs.email, password: @create_attrs.password})
+      conn = post(conn, Routes.user_path(conn, :sign_in), %{user: %{email: @create_attrs.email, password: @create_attrs.password}})
       %{"jwt" => token} = json_response(conn, 200)
       assert {:ok, claims} = OurFitnessPalApi.Guardian.decode_and_verify(token)
     end
 
     test "renders an error if the email is incorrect", %{conn: conn} do
       fixture(:user)
-      conn = post(conn, Routes.user_path(conn, :sign_in), %{email: "wrong@mail.com", password: @create_attrs.password})
+      conn = post(conn, Routes.user_path(conn, :sign_in), %{user: %{email: "wrong@mail.com", password: @create_attrs.password}})
       assert json_response(conn, 401) == %{"error" => "Wrong password"}
     end
 
     test "renders an error if the password is incorrect", %{conn: conn} do
       fixture(:user)
-      conn = post(conn, Routes.user_path(conn, :sign_in), %{email: @create_attrs.email, password: "abcdefghi"})
+      conn = post(conn, Routes.user_path(conn, :sign_in), %{user: %{email: @create_attrs.email, password: "abcdefghi"}})
       assert json_response(conn, 401) == %{"error" => "Wrong password"}
     end
   end

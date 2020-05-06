@@ -8,8 +8,11 @@ defmodule OurFitnessPalApiWeb.ExerciseControllerTest do
   @valid_attrs %{name: "Bench Press", description: "Lift the weight"}
   @invalid_attrs %{name: "", description: ""}
 
-  test "#index renders a list of exercises" do
-    conn = build_conn()
+  setup %{conn: conn} do
+    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+  end
+
+  test "#index renders a list of exercises", %{conn: conn} do
     exercise = Factory.insert(:exercise)
 
     conn = get conn, Routes.exercise_path(conn, :index)
@@ -23,8 +26,7 @@ defmodule OurFitnessPalApiWeb.ExerciseControllerTest do
     }
   end
 
-  test "#show renders a single exercise" do
-    conn = build_conn()
+  test "#show renders a single exercise", %{conn: conn} do
     exercise = Factory.insert(:exercise)
 
     conn = get conn, Routes.exercise_path(conn, :show, exercise)
@@ -38,9 +40,8 @@ defmodule OurFitnessPalApiWeb.ExerciseControllerTest do
     }
   end
 
-  test "#create adds an exercise record and renders a list of exercises when called with valid attributes" do
-    conn = build_conn()
-
+  @tag :authenticated
+  test "#create adds an exercise record and renders a list of exercises when called with valid attributes", %{conn: conn} do
     conn = post conn, Routes.exercise_path(conn, :create, exercise: @valid_attrs)
 
     exercise = Workouts.list_exercises
@@ -55,8 +56,8 @@ defmodule OurFitnessPalApiWeb.ExerciseControllerTest do
     }
   end
 
-  test "#create returns a list of errors when called with invalid attributes" do
-    conn = build_conn()
+  @tag :authenticated
+  test "#create returns a list of errors when called with invalid attributes", %{conn: conn} do
 
     conn = post conn, Routes.exercise_path(conn, :create, exercise: @invalid_attrs)
 
@@ -71,8 +72,8 @@ defmodule OurFitnessPalApiWeb.ExerciseControllerTest do
     }
   end
 
-  test "update changes an exercise record and renders a list of exercises when called with valid attributes" do
-    conn = build_conn()
+  @tag :authenticated
+  test "update changes an exercise record and renders a list of exercises when called with valid attributes", %{conn: conn} do
     exercise = Factory.insert(:exercise)
 
     conn = put conn, Routes.exercise_path(conn, :update, exercise, exercise: @valid_attrs)
@@ -91,8 +92,8 @@ defmodule OurFitnessPalApiWeb.ExerciseControllerTest do
     }
   end
 
-  test "#update returns a list of errors when called with invalid attributes" do
-    conn = build_conn()
+  @tag :authenticated
+  test "#update returns a list of errors when called with invalid attributes", %{conn: conn} do
     exercise = Factory.insert(:exercise)
 
     conn = put conn, Routes.exercise_path(conn, :update, exercise, exercise: @invalid_attrs)
@@ -110,8 +111,8 @@ defmodule OurFitnessPalApiWeb.ExerciseControllerTest do
     }
   end
 
-  test "#delete removes an exercise record and returns a list of exercises" do
-    conn = build_conn()
+  @tag :authenticated
+  test "#delete removes an exercise record and returns a list of exercises", %{conn: conn} do
     exercise = Factory.insert(:exercise)
 
     conn = delete conn, Routes.exercise_path(conn, :delete, exercise)
