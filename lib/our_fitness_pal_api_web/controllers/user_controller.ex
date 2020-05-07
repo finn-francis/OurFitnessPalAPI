@@ -15,7 +15,7 @@ defmodule OurFitnessPalApiWeb.UserController do
   def create(conn, %{"user" => user_params}) do
     with {:ok, %User{} = user} <- Accounts.create_user(user_params),
          {:ok, token, _claims} <- Guardian.encode_and_sign(user) do
-      conn |> render("jwt.json", %{jwt: token, user: %{id: user.id, email: user.email}})
+      conn |> render("jwt.json", %{jwt: token, user: %{id: user.id, email: user.email}, message: "Account created"})
     end
   end
 
@@ -23,7 +23,7 @@ defmodule OurFitnessPalApiWeb.UserController do
     with {:ok, token, claims} <- Accounts.token_sign_in(email, password),
          {:ok, user} <- Guardian.resource_from_claims(claims)
     do
-      conn |> render("jwt.json", %{jwt: token, user: %{id: user.id, email: user.email}})
+      conn |> render("jwt.json", %{jwt: token, user: %{id: user.id, email: user.email}, message: "Signed in succesfully"})
     else
       _ -> {:error, :unauthorized}
     end
