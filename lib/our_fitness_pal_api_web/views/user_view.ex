@@ -15,13 +15,14 @@ defmodule OurFitnessPalApiWeb.UserView do
       email: user.email}
   end
 
-  def render("jwt.json", %{jwt: jwt, user: user}) do
+  def render("jwt.json", %{jwt: jwt, user: user, message: message}) do
     %{
       jwt: jwt,
       user: %{
         id: user.id,
         email: user.email
-      }
+      },
+      message: message
     }
   end
 end

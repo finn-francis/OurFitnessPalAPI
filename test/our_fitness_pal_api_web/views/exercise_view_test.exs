@@ -21,10 +21,11 @@ defmodule OurFitnessPalApiWeb.ExerciseViewTest do
   test "index.json" do
     exercise = Factory.insert(:exercise)
 
-    rendered_exercises = ExerciseView.render("index.json", %{exercises: [exercise]})
+    rendered_exercises = ExerciseView.render("index.json", %{exercises: [exercise], message: ""})
 
     assert rendered_exercises == %{
-      exercises: [ExerciseView.exercise_json(exercise)]
+      exercises: [ExerciseView.exercise_json(exercise)],
+      message: ""
     }
   end
 

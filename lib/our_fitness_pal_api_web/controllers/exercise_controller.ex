@@ -5,7 +5,7 @@ defmodule OurFitnessPalApiWeb.ExerciseController do
 
   def index(conn, _params) do
     exercises = Workouts.list_exercises
-    render conn, "index.json", exercises: exercises
+    render conn, "index.json", exercises: exercises, message: ""
   end
 
   def show(conn, %{"id" => id}) do
@@ -17,7 +17,7 @@ defmodule OurFitnessPalApiWeb.ExerciseController do
     case Workouts.create_exercise(exercise) do
       {:ok, _exercise} ->
         exercises = Workouts.list_exercises
-        render conn, "index.json", exercises: exercises
+        render conn, "index.json", %{exercises: exercises, message: "Exercise created"}
       {:error, changeset} ->
         render conn, "errors.json", changeset: changeset
     end
@@ -28,7 +28,7 @@ defmodule OurFitnessPalApiWeb.ExerciseController do
     case Workouts.update_exercise(old_exercise, exercise) do
       {:ok, _exercise} ->
         exercises = Workouts.list_exercises
-        render conn, "index.json", exercises: exercises
+        render conn, "index.json", exercises: exercises, message: "Exercise updated"
       {:error, changeset} ->
         render conn, "errors.json", changeset: changeset
     end
@@ -39,7 +39,7 @@ defmodule OurFitnessPalApiWeb.ExerciseController do
     case Workouts.delete_exercise(old_exercise) do
       {:ok, _exercise} ->
         exercises = Workouts.list_exercises
-        render conn, "index.json", exercises: exercises
+        render conn, "index.json", exercises: exercises, message: "Exercise deleted"
       {:error, changeset} ->
         render conn, "errors.json", changeset: changeset
     end

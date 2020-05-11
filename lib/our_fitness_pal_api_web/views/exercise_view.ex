@@ -1,9 +1,10 @@
 defmodule OurFitnessPalApiWeb.ExerciseView do
   use OurFitnessPalApiWeb, :view
 
-  def render("index.json", %{exercises: exercises}) do
+  def render("index.json", %{exercises: exercises, message: message}) do
     %{
-      exercises: Enum.map(exercises, &exercise_json/1)
+      exercises: Enum.map(exercises, &exercise_json/1),
+      message: message
     }
   end
 
