@@ -8,8 +8,9 @@ defmodule OurFitnessPalApiWeb.ExerciseView do
     }
   end
 
-  def render("show.json", %{exercise: exercise}) do
-    %{exercise: exercise_json(exercise)}
+  def render("show.json", %{exercise: exercise} = params) do
+    message = params[:message] || ""
+    %{exercise: exercise_json(exercise), message: message}
   end
 
   def render("errors.json", %{changeset: changeset}) do

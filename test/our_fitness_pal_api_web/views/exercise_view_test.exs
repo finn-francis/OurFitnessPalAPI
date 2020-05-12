@@ -35,7 +35,8 @@ defmodule OurFitnessPalApiWeb.ExerciseViewTest do
     rendered_exercise = ExerciseView.render("show.json", %{exercise: exercise})
 
     assert rendered_exercise == %{
-      exercise: ExerciseView.exercise_json(exercise)
+      exercise: ExerciseView.exercise_json(exercise),
+      message: ""
     }
   end
 
