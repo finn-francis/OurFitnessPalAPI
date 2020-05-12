@@ -15,9 +15,8 @@ defmodule OurFitnessPalApiWeb.ExerciseController do
 
   def create(conn, %{"exercise" => exercise}) do
     case Workouts.create_exercise(exercise) do
-      {:ok, _exercise} ->
-        exercises = Workouts.list_exercises
-        render conn, "index.json", %{exercises: exercises, message: "Exercise created"}
+      {:ok, exercise} ->
+        render conn, "show.json", exercise: exercise, message: "Exercise created"
       {:error, changeset} ->
         render conn, "errors.json", changeset: changeset
     end
@@ -26,9 +25,8 @@ defmodule OurFitnessPalApiWeb.ExerciseController do
   def update(conn, %{"id" => exercise_id, "exercise" => exercise}) do
     old_exercise = Workouts.get_exercise!(exercise_id)
     case Workouts.update_exercise(old_exercise, exercise) do
-      {:ok, _exercise} ->
-        exercises = Workouts.list_exercises
-        render conn, "index.json", exercises: exercises, message: "Exercise updated"
+      {:ok, exercise} ->
+        render conn, "show.json", exercise: exercise, message: "Exercise updated"
       {:error, changeset} ->
         render conn, "errors.json", changeset: changeset
     end
