@@ -24,7 +24,7 @@ defmodule OurFitnessPalApi.Accounts.User do
     |> validate_required([:email, :password, :password_confirmation])
     |> validate_format(:email, ~r/@/)
     |> validate_length(:password, min: 8)
-    |> validate_confirmation(:password)
+    |> validate_confirmation(:password, message: "does not match password")
     |> unique_constraint(:email)
     |> put_password_hash
   end

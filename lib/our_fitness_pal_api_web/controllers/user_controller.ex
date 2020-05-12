@@ -13,9 +13,14 @@ defmodule OurFitnessPalApiWeb.UserController do
   end
 
   def create(conn, %{"user" => user_params}) do
-    with {:ok, %User{} = user} <- Accounts.create_user(user_params),
-         {:ok, token, _claims} <- Guardian.encode_and_sign(user) do
-      conn |> render("jwt.json", %{jwt: token, user: %{id: user.id, email: user.email}, message: "Account created"})
+    case Accounts.create_user(user_params) do
+      {:ok, user} ->
+        case Guardian.encode_and_sign(user) do
+          {:ok, token, _claims} ->
+            conn |> render("jwt.json", %{jwt: token, user: %{id: user.id, email: user.email}, message: "Account created"})
+        end
+      {:error, changeset} ->
+        render conn, "errors.json", changeset: changeset
     end
   end
 
