@@ -28,7 +28,7 @@ defmodule OurFitnessPalApiWeb.UserControllerTest do
 
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
+      assert json_response(conn, 200)["errors"] != %{}
     end
   end
 
