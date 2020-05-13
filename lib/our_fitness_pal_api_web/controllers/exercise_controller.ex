@@ -35,9 +35,8 @@ defmodule OurFitnessPalApiWeb.ExerciseController do
   def delete(conn, %{"id" => exercise_id}) do
     old_exercise = Workouts.get_exercise!(exercise_id)
     case Workouts.delete_exercise(old_exercise) do
-      {:ok, _exercise} ->
-        exercises = Workouts.list_exercises
-        render conn, "index.json", exercises: exercises, message: "Exercise deleted"
+      {:ok, exercise} ->
+        render conn, "show.json", exercise: exercise, message: "Exercise deleted"
       {:error, changeset} ->
         render conn, "errors.json", changeset: changeset
     end
