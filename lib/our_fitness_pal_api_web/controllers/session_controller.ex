@@ -9,7 +9,7 @@ defmodule OurFitnessPalApiWeb.SessionController do
   action_fallback OurFitnessPalApiWeb.FallbackController
 
   def index(conn, _params) do
-    sessions = Sessions.list_sessions()
+    sessions = Sessions.list_sessions(current_user(conn))
     render(conn, "index.json", sessions: sessions)
   end
 
