@@ -1,13 +1,10 @@
 defmodule OurFitnessPalApiWeb.SessionController do
   use OurFitnessPalApiWeb, :controller
 
-  # TODO (Finn): remove this once we have a current user plug, this is temporary to allow testing on session
   import Ecto.Query, warn: false
 
-  alias OurFitnessPalApi.Repo
   alias OurFitnessPalApi.Sessions
   alias OurFitnessPalApi.Sessions.Session
-  alias OurFitnessPalApi.Accounts.User
 
   action_fallback OurFitnessPalApiWeb.FallbackController
 
@@ -17,7 +14,7 @@ defmodule OurFitnessPalApiWeb.SessionController do
   end
 
   def create(conn, %{"session" => session_params}) do
-    with {:ok, %Session{} = session} <- Sessions.create_session(session_params, current_user()) do
+    with {:ok, %Session{} = session} <- Sessions.create_session(session_params, current_user(conn)) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.session_path(conn, :show, session))
@@ -44,10 +41,5 @@ defmodule OurFitnessPalApiWeb.SessionController do
     with {:ok, %Session{}} <- Sessions.delete_session(session) do
       send_resp(conn, :no_content, "")
     end
-  end
-
-  # TODO (Finn): remove this once we have a current user plug, this is temporary to allow testing on session
-  defp current_user do
-    Repo.one(from u in User, limit: 1)
   end
 end

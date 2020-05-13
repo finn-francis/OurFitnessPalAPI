@@ -24,6 +24,10 @@ defmodule OurFitnessPalApiWeb do
       import Plug.Conn
       import OurFitnessPalApiWeb.Gettext
       alias OurFitnessPalApiWeb.Router.Helpers, as: Routes
+
+      def current_user(conn) do
+        Guardian.Plug.current_resource(conn)
+      end
     end
   end
 
