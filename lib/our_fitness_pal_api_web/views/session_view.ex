@@ -3,7 +3,7 @@ defmodule OurFitnessPalApiWeb.SessionView do
   alias OurFitnessPalApiWeb.SessionView
 
   def render("index.json", %{sessions: sessions}) do
-    %{data: render_many(sessions, SessionView, "session.json")}
+    %{sessions: render_many(sessions, SessionView, "session.json")}
   end
 
   def render("show.json", %{session: session}) do
