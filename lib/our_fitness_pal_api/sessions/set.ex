@@ -6,6 +6,7 @@ defmodule OurFitnessPalApi.Sessions.Set do
     field :name, :string
 
     belongs_to :session, OurFitnessPalApi.Sessions.Session
+    many_to_many :exercises, Workout.Exercise, join_through: SetExercise
 
     timestamps()
   end

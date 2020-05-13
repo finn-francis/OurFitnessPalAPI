@@ -7,6 +7,7 @@ defmodule OurFitnessPalApi.Sessions.Session do
     field :name, :string
 
     belongs_to :user, OurFitnessPalApi.Accounts.User
+    has_many :sets, OurFitnessPalApi.Sessions.Set
 
     timestamps()
   end
