@@ -7,16 +7,16 @@ defmodule OurFitnessPalApiWeb.SetController do
   action_fallback OurFitnessPalApiWeb.FallbackController
 
   def index(conn, _params) do
-    sets = Sessions.list_sets()
-    render(conn, "index.json", sets: sets)
+    sets = Sessions.list_sets
+    render conn, "index.json", sets: sets, message: ""
   end
 
   def create(conn, %{"set" => set_params}) do
-    with {:ok, %Set{} = set} <- Sessions.create_set(set_params) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", Routes.set_path(conn, :show, set))
-      |> render("show.json", set: set)
+    case Sessions.create_set(set_params) do
+      {:ok, set} ->
+        render conn, "show.json", set: set, message: "Set created"
+      {:error, changeset} ->
+        render conn, "errors.json", changeset: changeset
     end
   end
 

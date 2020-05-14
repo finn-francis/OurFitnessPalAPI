@@ -1,12 +1,12 @@
 defmodule OurFitnessPalApiWeb.SetControllerTest do
   use OurFitnessPalApiWeb.ConnCase
+  require OurFitnessPalApi.Factory
+
+  alias OurFitnessPalApi.Factory
 
   alias OurFitnessPalApi.Sessions
   alias OurFitnessPalApi.Sessions.Set
 
-  @create_attrs %{
-    name: "some name"
-  }
   @update_attrs %{
     name: "some updated name"
   }
@@ -22,28 +22,63 @@ defmodule OurFitnessPalApiWeb.SetControllerTest do
   end
 
   describe "index" do
-    test "lists all sets", %{conn: conn} do
-      conn = get(conn, Routes.set_path(conn, :index))
-      assert json_response(conn, 200)["data"] == []
+    @tag :authenticated
+    test "#index renders a list of sets", %{conn: conn} do
+      set = Factory.insert(:set)
+
+      conn = get conn, Routes.set_path(conn, :index)
+
+      assert json_response(conn, 200) == %{
+        "sets" => [%{
+          "id" => set.id,
+          "name" => set.name
+        }],
+        "message" => ""
+      }
     end
   end
 
   describe "create set" do
+    @tag :authenticated
     test "renders set when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.set_path(conn, :create), set: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+      exercise = Factory.insert(:exercise)
+      session = Factory.insert(:session)
+      conn = post(conn, Routes.set_path(conn, :create), set: %{
+        name: "some name",
+        session_id: session.id,
+        set_exercises: %{
+          "0" => %{
+            unit: "Distance",
+            exercise_id: exercise.id
+          }
+        }
+      })
 
-      conn = get(conn, Routes.set_path(conn, :show, id))
+      set = Sessions.list_sets
+        |> List.first
 
-      assert %{
-               "id" => id,
-               "name" => "some name"
-             } = json_response(conn, 200)["data"]
+      assert json_response(conn, 200) == %{
+        "set" => %{
+          "name" => set.name,
+          "id" => set.id
+        },
+        "message" => "Set created"
+      }
     end
 
+    @tag :authenticated
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.set_path(conn, :create), set: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
+
+      sets = Sessions.list_sets
+      assert sets == []
+
+      assert json_response(conn, 200) == %{
+        "errors" => %{
+          "name" => ["can't be blank"],
+          "set_exercises" => ["can't be blank"]
+        }
+      }
     end
   end
 
