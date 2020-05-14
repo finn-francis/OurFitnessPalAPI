@@ -15,7 +15,8 @@ defmodule OurFitnessPalApi.Sessions.Set do
   @doc false
   def changeset(set, attrs) do
     set
-    |> cast(attrs, [:name])
+    |> cast(attrs, [:name, :session_id])
+    |> cast_assoc(:set_exercises, required: true)
     |> validate_required([:name])
   end
 end
