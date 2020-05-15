@@ -4,7 +4,6 @@ defmodule OurFitnessPalApiWeb.SessionController do
   import Ecto.Query, warn: false
 
   alias OurFitnessPalApi.Sessions
-  alias OurFitnessPalApi.Sessions.Session
 
   action_fallback OurFitnessPalApiWeb.FallbackController
 
@@ -14,11 +13,11 @@ defmodule OurFitnessPalApiWeb.SessionController do
   end
 
   def create(conn, %{"session" => session_params}) do
-    with {:ok, %Session{} = session} <- Sessions.create_session(session_params, current_user(conn)) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", Routes.session_path(conn, :show, session))
-      |> render("show.json", session: session)
+    case Sessions.create_session(session_params, current_user(conn)) do
+      {:ok, session} ->
+        render conn, "show.json", session: session, message: "Session created"
+      {:error, changeset} ->
+        render conn, "errors.json", changeset: changeset
     end
   end
 
@@ -30,16 +29,19 @@ defmodule OurFitnessPalApiWeb.SessionController do
   def update(conn, %{"id" => id, "session" => session_params}) do
     session = Sessions.get_session!(id)
 
-    with {:ok, %Session{} = session} <- Sessions.update_session(session, session_params) do
-      render(conn, "show.json", session: session)
+    case Sessions.update_session(session, session_params) do
+      {:ok, session} ->
+        render(conn, "show.json", session: session)
+      {:error, changeset} ->
+        render conn, "errors.json", changeset: changeset
     end
   end
 
   def delete(conn, %{"id" => id}) do
     session = Sessions.get_session!(id)
 
-    with {:ok, %Session{}} <- Sessions.delete_session(session) do
-      send_resp(conn, :no_content, "")
+    with {:ok, session} <- Sessions.delete_session(session) do
+      render(conn, "show.json", session: session)
     end
   end
 end
