@@ -52,7 +52,7 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
     test "renders session when data is valid", %{conn: conn} do
       user_id = (find_authenticated_user()).id
       conn = post(conn, Routes.session_path(conn, :create), session: @create_attrs)
-      assert %{"id" => id, "name" => name, "description" => description} = json_response(conn, 201)["session"]
+      assert %{"id" => id, "name" => name, "description" => description} = json_response(conn, 200)["session"]
 
       assert %Session{id: ^id, name: ^name, description: ^description, user_id: ^user_id} = Sessions.get_session!(id)
     end
@@ -60,7 +60,7 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
     @tag :authenticated
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.session_path(conn, :create), session: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
+      assert json_response(conn, 200)["errors"] != %{}
     end
   end
 
@@ -96,7 +96,7 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
     @tag :authenticated
     test "renders errors when data is invalid", %{conn: conn, session: session} do
       conn = put(conn, Routes.session_path(conn, :update, session), session: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
+      assert json_response(conn, 200)["errors"] != %{}
     end
   end
 
@@ -106,7 +106,7 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
     @tag :authenticated
     test "deletes chosen session", %{conn: conn, session: session} do
       conn = delete(conn, Routes.session_path(conn, :delete, session))
-      assert response(conn, 204)
+      assert response(conn, 200)
 
 
       assert Repo.get(Session, session.id) == nil

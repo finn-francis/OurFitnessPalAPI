@@ -15,4 +15,8 @@ defmodule OurFitnessPalApiWeb.SessionView do
       name: session.name,
       description: session.description}
   end
+
+  def render("errors.json", %{changeset: changeset}) do
+   %{errors: Ecto.Changeset.traverse_errors(changeset, &translate_error/1)}
+  end
 end
