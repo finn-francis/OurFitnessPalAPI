@@ -6,8 +6,8 @@ defmodule OurFitnessPalApiWeb.SetController do
 
   action_fallback OurFitnessPalApiWeb.FallbackController
 
-  def index(conn, _params) do
-    sets = Sessions.list_sets
+  def index(conn, %{"session_id" => session_id}) do
+    sets = Sessions.list_sets(session_id)
     render conn, "index.json", sets: sets, message: ""
   end
 

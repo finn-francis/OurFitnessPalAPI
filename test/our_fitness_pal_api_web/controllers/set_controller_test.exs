@@ -15,7 +15,7 @@ defmodule OurFitnessPalApiWeb.SetControllerTest do
     test "#index renders a list of sets", %{conn: conn} do
       set = Factory.insert(:set)
 
-      conn = get conn, Routes.set_path(conn, :index)
+      conn = get conn, Routes.session_set_path(conn, :index, set.session_id)
 
       assert json_response(conn, 200) == %{
         "sets" => [%{

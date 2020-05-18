@@ -23,8 +23,9 @@ defmodule OurFitnessPalApiWeb.Router do
     pipe_through [:api, :jwt_authenticated]
 
     resources "/exercises", ExerciseController, only: [:create, :update, :delete]
-    resources "/sessions", SessionController, except: [:new, :edit]
-    resources "/sets", SetController, except: [:new, :edit]
+    resources "/sessions", SessionController, except: [:new, :edit] do
+      resources "/sets", SetController, except: [:new, :edit]
+    end
   end
 
   # Enables LiveDashboard only for development

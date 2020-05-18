@@ -69,6 +69,11 @@ defmodule OurFitnessPalApi.Sessions do
     |> Repo.preload([:session, :exercises])
   end
 
+  def list_sets(session_id) do
+    Repo.all(Set, session_id: session_id)
+    |> Repo.preload([:session, :exercises])
+  end
+
   @doc """
   Gets a single set.
 
