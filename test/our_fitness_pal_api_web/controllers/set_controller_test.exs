@@ -5,17 +5,6 @@ defmodule OurFitnessPalApiWeb.SetControllerTest do
   alias OurFitnessPalApi.Factory
 
   alias OurFitnessPalApi.Sessions
-  alias OurFitnessPalApi.Sessions.Set
-
-  @update_attrs %{
-    name: "some updated name"
-  }
-  @invalid_attrs %{name: nil}
-
-  def fixture(:set) do
-    {:ok, set} = Sessions.create_set(@create_attrs)
-    set
-  end
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -67,57 +56,105 @@ defmodule OurFitnessPalApiWeb.SetControllerTest do
     end
 
     @tag :authenticated
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.set_path(conn, :create), set: @invalid_attrs)
+  test "#create returns a list of errors when called with invalid attributes", %{conn: conn} do
 
-      sets = Sessions.list_sets
-      assert sets == []
+    conn = post conn, Routes.set_path(conn, :create, set: %{
+      name: "",
+      session_id: "",
+      set_exercises: %{
+        "0" => %{
+          unit: "",
+          exercise_id: ""
+        }
+      }
+    })
+
+    sets = Sessions.list_sets
+    assert sets == []
+
+    assert json_response(conn, 200) == %{
+      "errors" => %{
+        "name" => ["can't be blank"],
+        "set_exercises" => [%{"unit" => ["can't be blank"]}]
+      }
+    }
+  end
+  end
+
+  describe "update set" do
+    @tag :authenticated
+    test "update changes an exercise record and renders a list of exercises when called with valid attributes", %{conn: conn} do
+      set = Factory.insert(:set)
+
+      session = Factory.insert(:session)
+      exercise = Factory.insert(:exercise)
+
+      conn = put conn, Routes.set_path(conn, :update, set, set: %{
+        name: "New set name",
+        session_id: session.id,
+        set_exercises: %{
+          "0" => %{
+            unit: "Time",
+            exercise_id: exercise.id
+          }
+        }
+      })
+
+      updated_set = Sessions.get_set!(set.id)
+
+      assert json_response(conn, 200) == %{
+        "set" => %{
+          "name" => updated_set.name,
+          "id" => updated_set.id
+        },
+        "message" => "Set updated"
+      }
+      assert updated_set.name == "New set name"
+
+    end
+
+    @tag :authenticated
+    test "#update returns a list of errors when called with invalid attributes", %{conn: conn} do
+      set = Factory.insert(:set)
+
+      conn = put conn, Routes.set_path(conn, :update, set, set: %{
+        name: "",
+        session_id: set.session_id,
+        set_exercises: %{
+          "0" => %{
+            unit: "",
+            exercise_id: ""
+          }
+        }
+      })
+
+      updated_set = Sessions.get_set!(set.id)
+
+      assert updated_set.name == set.name
+      assert updated_set.session_id == set.session_id
 
       assert json_response(conn, 200) == %{
         "errors" => %{
           "name" => ["can't be blank"],
-          "set_exercises" => ["can't be blank"]
+          "set_exercises" => [%{}, %{"unit" => ["can't be blank"]}]
         }
       }
     end
   end
 
-  describe "update set" do
-    setup [:create_set]
+  @tag :authenticated
+  test "#delete removes a set record and set exercise joins and returns a list of sets", %{conn: conn} do
+    set = Factory.insert(:set)
 
-    test "renders set when data is valid", %{conn: conn, set: %Set{id: id} = set} do
-      conn = put(conn, Routes.set_path(conn, :update, set), set: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
+    conn = delete conn, Routes.set_path(conn, :delete, set)
 
-      conn = get(conn, Routes.set_path(conn, :show, id))
+    sets = Sessions.list_sets
 
-      assert %{
-               "id" => id,
-               "name" => "some updated name"
-             } = json_response(conn, 200)["data"]
-    end
+    assert sets == []
 
-    test "renders errors when data is invalid", %{conn: conn, set: set} do
-      conn = put(conn, Routes.set_path(conn, :update, set), set: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
-
-  describe "delete set" do
-    setup [:create_set]
-
-    test "deletes chosen set", %{conn: conn, set: set} do
-      conn = delete(conn, Routes.set_path(conn, :delete, set))
-      assert response(conn, 204)
-
-      assert_error_sent 404, fn ->
-        get(conn, Routes.set_path(conn, :show, set))
-      end
-    end
-  end
-
-  defp create_set(_) do
-    set = fixture(:set)
-    %{set: set}
+    assert json_response(conn, 200) == %{
+      "sets" => [],
+      "message" => "Set deleted"
+    }
   end
 end

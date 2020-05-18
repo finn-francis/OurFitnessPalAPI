@@ -28,16 +28,22 @@ defmodule OurFitnessPalApiWeb.SetController do
   def update(conn, %{"id" => id, "set" => set_params}) do
     set = Sessions.get_set!(id)
 
-    with {:ok, %Set{} = set} <- Sessions.update_set(set, set_params) do
-      render(conn, "show.json", set: set)
+    case Sessions.update_set(set, set_params) do
+      {:ok, set} ->
+        render conn, "show.json", set: set, message: "Set updated"
+      {:error, changeset} ->
+        render conn, "errors.json", changeset: changeset
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    set = Sessions.get_set!(id)
-
-    with {:ok, %Set{}} <- Sessions.delete_set(set) do
-      send_resp(conn, :no_content, "")
+  def delete(conn, %{"id" => set_id}) do
+    set = Sessions.get_set!(set_id)
+    case Sessions.delete_set(set) do
+      {:ok, set} ->
+        sets = Sessions.list_sets
+        render conn, "index.json", sets: sets, message: "Set deleted"
+      {:error, changeset} ->
+        render conn, "errors.json", changeset: changeset
     end
   end
 end
