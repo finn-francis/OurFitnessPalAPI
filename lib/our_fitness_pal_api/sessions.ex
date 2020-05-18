@@ -66,6 +66,7 @@ defmodule OurFitnessPalApi.Sessions do
   """
   def list_sets do
     Repo.all(Set)
+    |> Repo.preload([:session, :exercises])
   end
 
   @doc """
@@ -82,7 +83,10 @@ defmodule OurFitnessPalApi.Sessions do
       ** (Ecto.NoResultsError)
 
   """
-  def get_set!(id), do: Repo.get!(Set, id)
+  def get_set!(id) do
+    Repo.get!(Set, id)
+    |> Repo.preload([:session, :exercises])
+  end
 
   @doc """
   Creates a set.
@@ -116,6 +120,7 @@ defmodule OurFitnessPalApi.Sessions do
   """
   def update_set(%Set{} = set, attrs) do
     set
+    |> Repo.preload(:set_exercises)
     |> Set.changeset(attrs)
     |> Repo.update()
   end

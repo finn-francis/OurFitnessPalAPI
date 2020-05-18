@@ -1,6 +1,8 @@
 defmodule OurFitnessPalApi.SessionsTest do
   use OurFitnessPalApi.DataCase
+  require OurFitnessPalApi.Factory
 
+  alias OurFitnessPalApi.Factory
   alias OurFitnessPalApi.Sessions
   alias OurFitnessPalApi.Accounts
 
@@ -95,17 +97,11 @@ defmodule OurFitnessPalApi.SessionsTest do
   describe "sets" do
     alias OurFitnessPalApi.Sessions.Set
 
-    @valid_attrs %{name: "some name"}
     @update_attrs %{name: "some updated name"}
     @invalid_attrs %{name: nil}
 
-    def set_fixture(attrs \\ %{}) do
-      {:ok, set} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Sessions.create_set()
-
-      set
+    def set_fixture() do
+      Factory.insert(:set)
     end
 
     test "list_sets/0 returns all sets" do
@@ -119,8 +115,22 @@ defmodule OurFitnessPalApi.SessionsTest do
     end
 
     test "create_set/1 with valid data creates a set" do
-      assert {:ok, %Set{} = set} = Sessions.create_set(@valid_attrs)
+      exercise = Factory.insert(:exercise)
+      session = Factory.insert(:session)
+      assert {:ok, %Set{} = set} = Sessions.create_set(%{
+        name: "some name",
+        session_id: session.id,
+        set_exercises: %{
+          "0" => %{
+            unit: "Distance",
+            exercise_id: exercise.id
+          }
+        }
+      })
+
       assert set.name == "some name"
+      assert set.session_id == session.id
+      assert set.exercises != []
     end
 
     test "create_set/1 with invalid data returns error changeset" do
