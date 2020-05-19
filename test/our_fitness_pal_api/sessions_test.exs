@@ -117,9 +117,8 @@ defmodule OurFitnessPalApi.SessionsTest do
     test "create_set/1 with valid data creates a set" do
       exercise = Factory.insert(:exercise)
       session = Factory.insert(:session)
-      assert {:ok, %Set{} = set} = Sessions.create_set(%{
+      assert {:ok, %Set{} = set} = Sessions.create_set(session.id, %{
         name: "some name",
-        session_id: session.id,
         set_exercises: %{
           "0" => %{
             unit: "Distance",
@@ -134,7 +133,8 @@ defmodule OurFitnessPalApi.SessionsTest do
     end
 
     test "create_set/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Sessions.create_set(@invalid_attrs)
+      session = Factory.insert(:session)
+      assert {:error, %Ecto.Changeset{}} = Sessions.create_set(session.id, @invalid_attrs)
     end
 
     test "update_set/2 with valid data updates the set" do
