@@ -105,10 +105,12 @@ defmodule OurFitnessPalApi.Sessions do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_set(attrs \\ %{}) do
-    %Set{}
-    |> Set.changeset(attrs)
-    |> Repo.insert()
+  def create_set(session_id, attrs \\ %{}) do
+    session = Repo.get!(Session, session_id)
+    changeset = session
+      |> Ecto.build_assoc(:sets)
+      |> Set.changeset(attrs)
+      |> Repo.insert
   end
 
   @doc """
