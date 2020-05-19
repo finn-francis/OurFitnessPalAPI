@@ -118,15 +118,14 @@ defmodule OurFitnessPalApiWeb.ExerciseControllerTest do
   @tag :authenticated
   test "#delete removes an exercise record and returns a list of exercises", %{conn: conn} do
     exercise = Factory.insert(:exercise)
-
     conn = delete conn, Routes.exercise_path(conn, :delete, exercise)
 
-    exercises = Workouts.list_exercises
-
-    assert exercises == []
-
     assert json_response(conn, 200) == %{
-      "exercises" => [],
+      "exercise" => %{
+        "name" => exercise.name,
+        "description" => exercise.description,
+        "id" => exercise.id
+      },
       "message" => "Exercise deleted"
     }
   end
