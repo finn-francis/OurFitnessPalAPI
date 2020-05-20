@@ -41,10 +41,13 @@ defmodule OurFitnessPalApiWeb.SessionController do
   end
 
   def delete(conn, %{"id" => id}) do
-    session = Sessions.get_session!(id, current_user(conn).id)
-
-    with {:ok, session} <- Sessions.delete_session(session) do
+    with {:find, %Session{} = session} <- {:find, Sessions.get_session!(id, current_user(conn).id)},
+         {:delete, {:ok, session}}     <- {:delete, Sessions.delete_session(session)}
+    do
       render(conn, "show.json", session: session)
+    else
+      {:find, _}                     -> {:error, :forbidden}
+      {:delete, {:error, changeset}} -> render(conn, "errors.json", changeset: changeset)
     end
   end
 end

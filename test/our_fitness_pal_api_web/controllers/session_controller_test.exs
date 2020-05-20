@@ -123,8 +123,16 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
       conn = delete(conn, Routes.session_path(conn, :delete, session))
       assert response(conn, 200)
 
-
       assert Repo.get(Session, session.id) == nil
+    end
+
+    @tag :authenticated
+    test "renders forbidden when a user tries to delete another users session", %{conn: conn} do
+      author = user_fixture(%{email: "author@email.com"})
+      session = fixture(:session, author)
+      conn = delete(conn, Routes.session_path(conn, :delete, session))
+
+      assert json_response(conn, 403)
     end
   end
 
