@@ -67,7 +67,7 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
 
   describe "show" do
     @tag :authenticated
-    test "renders a sesson", %{conn: conn} do
+    test "renders a session", %{conn: conn} do
       session = fixture(:session, find_authenticated_user())
       conn = get(conn, Routes.session_path(conn, :show, session))
       %{"id" => id, "name" => name, "description" => description} = json_response(conn, 200)["session"]
@@ -75,7 +75,7 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
     end
 
     @tag :authenticated
-    test "renders forbidden if the session does not belon to the user", %{conn: conn} do
+    test "renders forbidden if the session does not belong to the user", %{conn: conn} do
       session = fixture(:session, user_fixture(%{email: "newuser@email.com"}))
       conn = get(conn, Routes.session_path(conn, :show, session))
       assert json_response(conn, 403)
