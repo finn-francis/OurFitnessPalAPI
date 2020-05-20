@@ -106,6 +106,14 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
       conn = put(conn, Routes.session_path(conn, :update, session), session: @invalid_attrs)
       assert json_response(conn, 200)["errors"] != %{}
     end
+
+    @tag :authenticated
+    test "renders forbidden when a user tries to change another users session", %{conn: conn} do
+      author = user_fixture(%{email: "author@email.com"})
+      session = fixture(:session, author)
+      conn = put(conn, Routes.session_path(conn, :update, session), session: @update_attrs)
+      assert json_response(conn, 403)
+    end
   end
 
   describe "delete session" do

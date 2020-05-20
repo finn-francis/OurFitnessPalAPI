@@ -4,6 +4,7 @@ defmodule OurFitnessPalApiWeb.SessionController do
   import Ecto.Query, warn: false
 
   alias OurFitnessPalApi.Sessions
+  alias OurFitnessPalApi.Sessions.Session
 
   action_fallback OurFitnessPalApiWeb.FallbackController
 
@@ -29,13 +30,13 @@ defmodule OurFitnessPalApiWeb.SessionController do
   end
 
   def update(conn, %{"id" => id, "session" => session_params}) do
-    session = Sessions.get_session!(id, current_user(conn).id)
-
-    case Sessions.update_session(session, session_params) do
-      {:ok, session} ->
-        render(conn, "show.json", session: session)
-      {:error, changeset} ->
-        render conn, "errors.json", changeset: changeset
+    with {:find, %Session{} = session} <- {:find, Sessions.get_session!(id, current_user(conn).id)},
+         {:update, {:ok, session}}     <- {:update, Sessions.update_session(session, session_params)}
+    do
+      render(conn, "show.json", session: session)
+    else
+      {:find, _}                     -> {:error, :forbidden}
+      {:update, {:error, changeset}} -> render(conn, "errors.json", changeset: changeset)
     end
   end
 
