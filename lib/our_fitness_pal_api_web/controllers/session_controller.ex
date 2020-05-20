@@ -22,12 +22,12 @@ defmodule OurFitnessPalApiWeb.SessionController do
   end
 
   def show(conn, %{"id" => id}) do
-    session = Sessions.get_session!(id)
+    session = Sessions.get_session!(id, current_user(conn).id)
     render(conn, "show.json", session: session)
   end
 
   def update(conn, %{"id" => id, "session" => session_params}) do
-    session = Sessions.get_session!(id)
+    session = Sessions.get_session!(id, current_user(conn).id)
 
     case Sessions.update_session(session, session_params) do
       {:ok, session} ->
@@ -38,7 +38,7 @@ defmodule OurFitnessPalApiWeb.SessionController do
   end
 
   def delete(conn, %{"id" => id}) do
-    session = Sessions.get_session!(id)
+    session = Sessions.get_session!(id, current_user(conn).id)
 
     with {:ok, session} <- Sessions.delete_session(session) do
       render(conn, "show.json", session: session)

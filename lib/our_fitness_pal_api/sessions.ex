@@ -23,9 +23,11 @@ defmodule OurFitnessPalApi.Sessions do
   @doc """
   Gets a single session.
 
-  Raises `Ecto.NoResultsError` if the Session does not exist.
+  Returns nil if the Session does not exist.
   """
-  def get_session!(id), do: Repo.get!(Session, id)
+  def get_session!(id, user_id) do
+    Repo.get_by(Session, %{id: id, user_id: user_id})
+  end
 
   @doc """
   Creates a new session and attaches a user
