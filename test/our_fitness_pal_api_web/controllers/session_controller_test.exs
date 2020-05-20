@@ -99,6 +99,13 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
       assert updated_session.name == @update_attrs.name
       assert updated_session.description == @update_attrs.description
     end
+
+    @tag :authenticated
+    test "renders errors when data is invalid", %{conn: conn} do
+      session = fixture(:session, find_authenticated_user())
+      conn = put(conn, Routes.session_path(conn, :update, session), session: @invalid_attrs)
+      assert json_response(conn, 200)["errors"] != %{}
+    end
   end
 
   describe "delete session" do

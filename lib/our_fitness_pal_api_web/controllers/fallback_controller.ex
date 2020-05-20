@@ -25,4 +25,10 @@ defmodule OurFitnessPalApiWeb.FallbackController do
     |> put_status(:unauthorized)
     |> json(%{error: "Wrong password"})
   end
+
+  def call(conn, {:error, :forbidden}) do
+    conn
+    |> put_status(:forbidden)
+    |> json(%{error: "Forbidden"})
+  end
 end

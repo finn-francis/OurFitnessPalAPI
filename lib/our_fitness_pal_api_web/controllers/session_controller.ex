@@ -22,8 +22,10 @@ defmodule OurFitnessPalApiWeb.SessionController do
   end
 
   def show(conn, %{"id" => id}) do
-    session = Sessions.get_session!(id, current_user(conn).id)
-    render(conn, "show.json", session: session)
+    case Sessions.get_session!(id, current_user(conn).id) do
+      nil -> {:error, :forbidden}
+      session -> render(conn, "show.json", session: session)
+    end
   end
 
   def update(conn, %{"id" => id, "session" => session_params}) do
