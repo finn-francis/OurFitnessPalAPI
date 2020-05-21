@@ -163,13 +163,16 @@ defmodule OurFitnessPalApiWeb.SetControllerTest do
     sets = Sessions.list_sets(set.session_id)
 
     assert sets == []
+    set_name = set.name
+    set_id = set.id
 
-    assert json_response(conn, 200) == %{
+    assert %{
       "set" => %{
-        "name" => set.name,
-        "id" => set.id
+        "name" => ^set_name,
+        "id" => ^set_id,
+        "set_exercises" => set_exercises
       },
       "message" => "Set deleted"
-    }
+    } = json_response(conn, 200)
   end
 end
