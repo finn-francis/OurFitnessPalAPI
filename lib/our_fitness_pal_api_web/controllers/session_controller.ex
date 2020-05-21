@@ -4,6 +4,7 @@ defmodule OurFitnessPalApiWeb.SessionController do
   import Ecto.Query, warn: false
 
   alias OurFitnessPalApi.Sessions
+  alias OurFitnessPalApi.Sessions.Session
 
   action_fallback OurFitnessPalApiWeb.FallbackController
 
@@ -22,26 +23,31 @@ defmodule OurFitnessPalApiWeb.SessionController do
   end
 
   def show(conn, %{"id" => id}) do
-    session = Sessions.get_session!(id)
-    render(conn, "show.json", session: session)
+    case Sessions.get_session!(id, current_user(conn).id) do
+      nil -> {:error, :forbidden}
+      session -> render(conn, "show.json", session: session)
+    end
   end
 
   def update(conn, %{"id" => id, "session" => session_params}) do
-    session = Sessions.get_session!(id)
-
-    case Sessions.update_session(session, session_params) do
-      {:ok, session} ->
-        render(conn, "show.json", session: session)
-      {:error, changeset} ->
-        render conn, "errors.json", changeset: changeset
+    with {:find, %Session{} = session} <- {:find, Sessions.get_session!(id, current_user(conn).id)},
+         {:update, {:ok, session}}     <- {:update, Sessions.update_session(session, session_params)}
+    do
+      render(conn, "show.json", session: session)
+    else
+      {:find, _}                     -> {:error, :forbidden}
+      {:update, {:error, changeset}} -> render(conn, "errors.json", changeset: changeset)
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    session = Sessions.get_session!(id)
-
-    with {:ok, session} <- Sessions.delete_session(session) do
+    with {:find, %Session{} = session} <- {:find, Sessions.get_session!(id, current_user(conn).id)},
+         {:delete, {:ok, session}}     <- {:delete, Sessions.delete_session(session)}
+    do
       render(conn, "show.json", session: session)
+    else
+      {:find, _}                     -> {:error, :forbidden}
+      {:delete, {:error, changeset}} -> render(conn, "errors.json", changeset: changeset)
     end
   end
 end

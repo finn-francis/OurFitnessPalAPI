@@ -50,11 +50,12 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
   describe "create session" do
     @tag :authenticated
     test "renders session when data is valid", %{conn: conn} do
-      user_id = (find_authenticated_user()).id
+      user = find_authenticated_user()
+      user_id = user.id
       conn = post(conn, Routes.session_path(conn, :create), session: @create_attrs)
       assert %{"id" => id, "name" => name, "description" => description} = json_response(conn, 200)["session"]
 
-      assert %Session{id: ^id, name: ^name, description: ^description, user_id: ^user_id} = Sessions.get_session!(id)
+      assert %Session{id: ^id, name: ^name, description: ^description, user_id: ^user_id} = Sessions.get_session!(id, user.id)
     end
 
     @tag :authenticated
@@ -65,21 +66,27 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
   end
 
   describe "show" do
-    setup [:create_session]
-
     @tag :authenticated
-    test "renders a sesson", %{conn: conn, session: session} do
+    test "renders a session", %{conn: conn} do
+      session = fixture(:session, find_authenticated_user())
       conn = get(conn, Routes.session_path(conn, :show, session))
       %{"id" => id, "name" => name, "description" => description} = json_response(conn, 200)["session"]
       assert %Session{id: ^id, name: ^name, description: ^description} = session
     end
+
+    @tag :authenticated
+    test "renders forbidden if the session does not belong to the user", %{conn: conn} do
+      session = fixture(:session, user_fixture(%{email: "newuser@email.com"}))
+      conn = get(conn, Routes.session_path(conn, :show, session))
+      assert json_response(conn, 403)
+    end
   end
 
   describe "update session" do
-    setup [:create_session]
-
     @tag :authenticated
-    test "renders session when data is valid", %{conn: conn, session: session} do
+    test "renders session when data is valid", %{conn: conn} do
+      user = find_authenticated_user()
+      session = fixture(:session, user)
       conn = put(conn, Routes.session_path(conn, :update, session), session: @update_attrs)
 
       assert %{
@@ -88,34 +95,45 @@ defmodule OurFitnessPalApiWeb.SessionControllerTest do
                "name" => "some updated name"
              } = json_response(conn, 200)["session"]
 
-      updated_session = Sessions.get_session!(id)
+      updated_session = Sessions.get_session!(id, user.id)
       assert updated_session.name == @update_attrs.name
       assert updated_session.description == @update_attrs.description
     end
 
     @tag :authenticated
-    test "renders errors when data is invalid", %{conn: conn, session: session} do
+    test "renders errors when data is invalid", %{conn: conn} do
+      session = fixture(:session, find_authenticated_user())
       conn = put(conn, Routes.session_path(conn, :update, session), session: @invalid_attrs)
       assert json_response(conn, 200)["errors"] != %{}
+    end
+
+    @tag :authenticated
+    test "renders forbidden when a user tries to change another users session", %{conn: conn} do
+      author = user_fixture(%{email: "author@email.com"})
+      session = fixture(:session, author)
+      conn = put(conn, Routes.session_path(conn, :update, session), session: @update_attrs)
+      assert json_response(conn, 403)
     end
   end
 
   describe "delete session" do
-    setup [:create_session]
-
     @tag :authenticated
-    test "deletes chosen session", %{conn: conn, session: session} do
+    test "deletes chosen session", %{conn: conn} do
+      session = fixture(:session, find_authenticated_user())
       conn = delete(conn, Routes.session_path(conn, :delete, session))
       assert response(conn, 200)
 
-
       assert Repo.get(Session, session.id) == nil
     end
-  end
 
-  defp create_session(_) do
-    session = fixture(:session)
-    %{session: session}
+    @tag :authenticated
+    test "renders forbidden when a user tries to delete another users session", %{conn: conn} do
+      author = user_fixture(%{email: "author@email.com"})
+      session = fixture(:session, author)
+      conn = delete(conn, Routes.session_path(conn, :delete, session))
+
+      assert json_response(conn, 403)
+    end
   end
 
   defp find_authenticated_user do

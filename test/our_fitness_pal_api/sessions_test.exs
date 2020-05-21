@@ -60,8 +60,9 @@ defmodule OurFitnessPalApi.SessionsTest do
     end
 
     test "get_session!/1 returns the session with given id" do
-      session = session_fixture()
-      assert Sessions.get_session!(session.id) == session
+      user = user_fixture()
+      session = session_fixture(%{}, user)
+      assert Sessions.get_session!(session.id, user.id) == session
     end
 
     test "create_session/2 with valid data creates a session" do
@@ -75,22 +76,26 @@ defmodule OurFitnessPalApi.SessionsTest do
     end
 
     test "update_session/2 with valid data updates the session" do
-      session = session_fixture()
+      user = user_fixture()
+      session = session_fixture(%{}, user)
       assert {:ok, %Session{} = session} = Sessions.update_session(session, @update_attrs)
       assert session.description == "some updated description"
       assert session.name == "some updated name"
     end
 
     test "update_session/2 with invalid data returns error changeset" do
-      session = session_fixture()
+      user = user_fixture()
+      session = session_fixture(%{}, user)
       assert {:error, %Ecto.Changeset{}} = Sessions.update_session(session, @invalid_attrs)
-      assert session == Sessions.get_session!(session.id)
+      assert session == Sessions.get_session!(session.id, user.id)
     end
 
     test "delete_session/1 deletes the session" do
-      session = session_fixture()
+      user = user_fixture()
+      session = session_fixture(%{}, user)
+
       assert {:ok, %Session{}} = Sessions.delete_session(session)
-      assert_raise Ecto.NoResultsError, fn -> Sessions.get_session!(session.id) end
+      assert Sessions.get_session!(session.id, user.id) == nil
     end
   end
 
