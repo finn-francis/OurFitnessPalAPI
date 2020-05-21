@@ -108,10 +108,15 @@ defmodule OurFitnessPalApi.Sessions do
 
   """
   def create_set(session_id, attrs \\ %{}) do
-    Repo.get!(Session, session_id)
+    set = Repo.get!(Session, session_id)
     |> Ecto.build_assoc(:sets)
     |> Set.changeset(attrs)
     |> Repo.insert
+
+    case set do
+      {:error, changeset} -> {:error, changeset}
+      {:ok, set} -> {:ok, Repo.preload(set, [:exercises, :session, set_exercises: [:exercise]])}
+    end
   end
 
   @doc """

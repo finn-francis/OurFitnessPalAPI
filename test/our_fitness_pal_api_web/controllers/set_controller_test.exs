@@ -56,16 +56,22 @@ defmodule OurFitnessPalApiWeb.SetControllerTest do
       set = Sessions.list_sets(session.id)
         |> List.first
 
-      assert json_response(conn, 200) == %{
+      set_id = set.id
+      set_name = set.name
+      exercise_name = exercise.name
+      exercise_description = exercise.description
+
+      assert %{
         "set" => %{
-          "name" => set.name,
-          "id" => set.id
+          "id" => ^set_id, "name" => ^set_name,
+          "set_exercises" => [%{"id" => id, "exercise_name" => ^exercise_name, "exercise_description" => ^exercise_description, "unit" => "Distance"}]
         },
         "message" => "Set created"
-      }
+      } = json_response(conn, 200)
+
     end
 
-    @tag :authenticated
+  @tag :authenticated
   test "#create returns a list of errors when called with invalid attributes", %{conn: conn} do
     session = Factory.insert(:session)
     conn = post conn, Routes.session_set_path(conn, :create, session.id), set: %{
