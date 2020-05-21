@@ -92,7 +92,7 @@ defmodule OurFitnessPalApi.Sessions do
   """
   def get_set!(id) do
     Repo.get!(Set, id)
-    |> Repo.preload([:session, :exercises])
+    |> Repo.preload([:session, :exercises, set_exercises: [:exercise]])
   end
 
   @doc """
@@ -132,10 +132,14 @@ defmodule OurFitnessPalApi.Sessions do
 
   """
   def update_set(%Set{} = set, attrs) do
-    set
-    |> Repo.preload(:set_exercises)
+    set = set
     |> Set.changeset(attrs)
     |> Repo.update()
+
+    case set do
+      {:error, changeset} -> {:error, changeset}
+      {:ok, set} -> {:ok, Repo.preload(set, [:exercises, :session, set_exercises: [:exercise]])}
+    end
   end
 
   @doc """

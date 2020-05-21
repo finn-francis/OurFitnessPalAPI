@@ -113,16 +113,16 @@ defmodule OurFitnessPalApiWeb.SetControllerTest do
       }
 
       updated_set = Sessions.get_set!(set.id)
-
-      assert json_response(conn, 200) == %{
+      updated_set_name = updated_set.name
+      updated_set_id = updated_set.id
+      assert %{
         "set" => %{
-          "name" => updated_set.name,
-          "id" => updated_set.id
+          "name" => ^updated_set_name,
+          "id" => ^updated_set_id,
+          "set_exercises" => set_exercises
         },
         "message" => "Set updated"
-      }
-      assert updated_set.name == "New set name"
-
+      } = json_response(conn, 200)
     end
 
     @tag :authenticated

@@ -115,7 +115,7 @@ defmodule OurFitnessPalApi.SessionsTest do
     end
 
     test "get_set!/1 returns the set with given id" do
-      set = set_fixture()
+      set = set_fixture() |> Repo.preload([:session, set_exercises: [:exercise]])
       assert Sessions.get_set!(set.id) == set
     end
 
@@ -143,13 +143,24 @@ defmodule OurFitnessPalApi.SessionsTest do
     end
 
     test "update_set/2 with valid data updates the set" do
-      set = set_fixture()
+      exercise = Factory.insert(:exercise)
+      session = Factory.insert(:session)
+      assert {:ok, %Set{} = set} = Sessions.create_set(session.id, %{
+        name: "some name",
+        set_exercises: %{
+          "0" => %{
+            unit: "Distance",
+            exercise_id: exercise.id
+          }
+        }
+      })
+
       assert {:ok, %Set{} = set} = Sessions.update_set(set, @update_attrs)
       assert set.name == "some updated name"
     end
 
     test "update_set/2 with invalid data returns error changeset" do
-      set = set_fixture()
+      set = set_fixture() |> Repo.preload([set_exercises: [:exercise]])
       assert {:error, %Ecto.Changeset{}} = Sessions.update_set(set, @invalid_attrs)
       assert set == Sessions.get_set!(set.id)
     end
