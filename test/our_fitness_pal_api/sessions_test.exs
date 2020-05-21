@@ -111,7 +111,7 @@ defmodule OurFitnessPalApi.SessionsTest do
 
     test "list_sets/0 returns all sets" do
       set = set_fixture()
-      assert Sessions.list_sets() == [set]
+      assert Sessions.list_sets() == [set |> Repo.preload([:session, set_exercises: [:exercise]])]
     end
 
     test "get_set!/1 returns the set with given id" do

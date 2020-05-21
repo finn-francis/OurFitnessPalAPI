@@ -68,12 +68,12 @@ defmodule OurFitnessPalApi.Sessions do
   """
   def list_sets do
     Repo.all(Set)
-    |> Repo.preload([:session, :exercises])
+    |> Repo.preload([:session, :exercises, set_exercises: [:exercise]])
   end
 
   def list_sets(session_id) do
     Repo.all(Set, session_id: session_id)
-    |> Repo.preload([:session, :exercises])
+    |> Repo.preload([:session, :exercises, set_exercises: [:exercise]])
   end
 
   @doc """

@@ -13,17 +13,28 @@ defmodule OurFitnessPalApiWeb.SetControllerTest do
   describe "index" do
     @tag :authenticated
     test "#index renders a list of sets", %{conn: conn} do
-      set = Factory.insert(:set)
+      session = Factory.insert(:session, %{name: "Leg Day", description: "Do Legs"})
+      exercise = Factory.insert(:exercise, %{name: "Squat", description: "Go Low"})
+      set1 = Factory.insert(:set, %{session: session, name: "first", exercises: [exercise]})
+      set2 = Factory.insert(:set, %{session: session, name: "second", exercises: [exercise]})
 
-      conn = get conn, Routes.session_set_path(conn, :index, set.session_id)
+      conn = get conn, Routes.session_set_path(conn, :index, session.id)
 
-      assert json_response(conn, 200) == %{
-        "sets" => [%{
-          "id" => set.id,
-          "name" => set.name
-        }],
+      set1_id = set1.id
+      set2_id = set2.id
+
+      assert %{
+        "sets" => [
+          %{"id" => ^set1_id, "name" => "first"  ,
+            "set_exercises" => [%{"id" => id1, "exercise_name" => "Squat", "exercise_description" => "Go Low", "unit" => unit}]
+          },
+          %{
+            "id" => ^set2_id, "name" => "second",
+            "set_exercises" => [%{"id" => id2, "exercise_name" => "Squat", "exercise_description" => "Go Low", "unit" => unit}]
+          }
+        ],
         "message" => ""
-      }
+      } = json_response(conn, 200)
     end
   end
 

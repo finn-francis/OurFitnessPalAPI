@@ -21,6 +21,16 @@ defmodule OurFitnessPalApiWeb.SetView do
     %{
       id: set.id,
       name: set.name,
+      set_exercises: Enum.map(set.set_exercises, &set_exercise_json/1)
+    }
+  end
+
+  def set_exercise_json(set_exercise) do
+    %{
+      id: set_exercise.id,
+      exercise_name: set_exercise.exercise.name,
+      exercise_description: set_exercise.exercise.description,
+      unit: set_exercise.unit
     }
   end
 
