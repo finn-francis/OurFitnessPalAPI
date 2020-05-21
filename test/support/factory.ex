@@ -7,4 +7,19 @@ defmodule OurFitnessPalApi.Factory do
       description: "Default Description"
     }
   end
+
+  def session_factory do
+    %OurFitnessPalApi.Sessions.Session{
+      name: sequence("session"),
+      description: "Default Description"
+    }
+  end
+
+  def set_factory do
+    %OurFitnessPalApi.Sessions.Set{
+      name: sequence("set"),
+      session: build(:session),
+      exercises: build_list(1, :exercise)
+    }
+  end
 end

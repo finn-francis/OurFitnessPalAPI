@@ -1,6 +1,8 @@
 defmodule OurFitnessPalApi.SessionsTest do
   use OurFitnessPalApi.DataCase
+  require OurFitnessPalApi.Factory
 
+  alias OurFitnessPalApi.Factory
   alias OurFitnessPalApi.Sessions
   alias OurFitnessPalApi.Accounts
 
@@ -94,6 +96,73 @@ defmodule OurFitnessPalApi.SessionsTest do
 
       assert {:ok, %Session{}} = Sessions.delete_session(session)
       assert Sessions.get_session!(session.id, user.id) == nil
+    end
+  end
+
+  describe "sets" do
+    alias OurFitnessPalApi.Sessions.Set
+
+    @update_attrs %{name: "some updated name"}
+    @invalid_attrs %{name: nil}
+
+    def set_fixture() do
+      Factory.insert(:set)
+    end
+
+    test "list_sets/0 returns all sets" do
+      set = set_fixture()
+      assert Sessions.list_sets() == [set]
+    end
+
+    test "get_set!/1 returns the set with given id" do
+      set = set_fixture()
+      assert Sessions.get_set!(set.id) == set
+    end
+
+    test "create_set/1 with valid data creates a set" do
+      exercise = Factory.insert(:exercise)
+      session = Factory.insert(:session)
+      assert {:ok, %Set{} = set} = Sessions.create_set(session.id, %{
+        name: "some name",
+        set_exercises: %{
+          "0" => %{
+            unit: "Distance",
+            exercise_id: exercise.id
+          }
+        }
+      })
+
+      assert set.name == "some name"
+      assert set.session_id == session.id
+      assert set.exercises != []
+    end
+
+    test "create_set/1 with invalid data returns error changeset" do
+      session = Factory.insert(:session)
+      assert {:error, %Ecto.Changeset{}} = Sessions.create_set(session.id, @invalid_attrs)
+    end
+
+    test "update_set/2 with valid data updates the set" do
+      set = set_fixture()
+      assert {:ok, %Set{} = set} = Sessions.update_set(set, @update_attrs)
+      assert set.name == "some updated name"
+    end
+
+    test "update_set/2 with invalid data returns error changeset" do
+      set = set_fixture()
+      assert {:error, %Ecto.Changeset{}} = Sessions.update_set(set, @invalid_attrs)
+      assert set == Sessions.get_set!(set.id)
+    end
+
+    test "delete_set/1 deletes the set" do
+      set = set_fixture()
+      assert {:ok, %Set{}} = Sessions.delete_set(set)
+      assert_raise Ecto.NoResultsError, fn -> Sessions.get_set!(set.id) end
+    end
+
+    test "change_set/1 returns a set changeset" do
+      set = set_fixture()
+      assert %Ecto.Changeset{} = Sessions.change_set(set)
     end
   end
 end
