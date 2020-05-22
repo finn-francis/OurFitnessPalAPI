@@ -14,7 +14,7 @@ defmodule OurFitnessPalApi.Sessions.SetExercise do
   @doc false
   def changeset(set_exercise, attrs) do
     set_exercise
-    |> cast(attrs, [:unit])
+    |> cast(attrs, [:unit, :set_id, :exercise_id])
     |> validate_required([:unit])
     |> validate_inclusion(:unit, ["Reps", "Distance", "Time"])
   end

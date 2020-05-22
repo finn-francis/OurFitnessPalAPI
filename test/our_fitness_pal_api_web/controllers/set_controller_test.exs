@@ -13,17 +13,28 @@ defmodule OurFitnessPalApiWeb.SetControllerTest do
   describe "index" do
     @tag :authenticated
     test "#index renders a list of sets", %{conn: conn} do
-      set = Factory.insert(:set)
+      session = Factory.insert(:session, %{name: "Leg Day", description: "Do Legs"})
+      exercise = Factory.insert(:exercise, %{name: "Squat", description: "Go Low"})
+      set1 = Factory.insert(:set, %{session: session, name: "first", exercises: [exercise]})
+      set2 = Factory.insert(:set, %{session: session, name: "second", exercises: [exercise]})
 
-      conn = get conn, Routes.session_set_path(conn, :index, set.session_id)
+      conn = get conn, Routes.session_set_path(conn, :index, session.id)
 
-      assert json_response(conn, 200) == %{
-        "sets" => [%{
-          "id" => set.id,
-          "name" => set.name
-        }],
+      set1_id = set1.id
+      set2_id = set2.id
+
+      assert %{
+        "sets" => [
+          %{"id" => ^set1_id, "name" => "first"  ,
+            "set_exercises" => [%{"id" => id1, "exercise_name" => "Squat", "exercise_description" => "Go Low", "unit" => unit}]
+          },
+          %{
+            "id" => ^set2_id, "name" => "second",
+            "set_exercises" => [%{"id" => id2, "exercise_name" => "Squat", "exercise_description" => "Go Low", "unit" => unit}]
+          }
+        ],
         "message" => ""
-      }
+      } = json_response(conn, 200)
     end
   end
 
@@ -45,16 +56,22 @@ defmodule OurFitnessPalApiWeb.SetControllerTest do
       set = Sessions.list_sets(session.id)
         |> List.first
 
-      assert json_response(conn, 200) == %{
+      set_id = set.id
+      set_name = set.name
+      exercise_name = exercise.name
+      exercise_description = exercise.description
+
+      assert %{
         "set" => %{
-          "name" => set.name,
-          "id" => set.id
+          "id" => ^set_id, "name" => ^set_name,
+          "set_exercises" => [%{"id" => id, "exercise_name" => ^exercise_name, "exercise_description" => ^exercise_description, "unit" => "Distance"}]
         },
         "message" => "Set created"
-      }
+      } = json_response(conn, 200)
+
     end
 
-    @tag :authenticated
+  @tag :authenticated
   test "#create returns a list of errors when called with invalid attributes", %{conn: conn} do
     session = Factory.insert(:session)
     conn = post conn, Routes.session_set_path(conn, :create, session.id), set: %{
@@ -96,16 +113,16 @@ defmodule OurFitnessPalApiWeb.SetControllerTest do
       }
 
       updated_set = Sessions.get_set!(set.id)
-
-      assert json_response(conn, 200) == %{
+      updated_set_name = updated_set.name
+      updated_set_id = updated_set.id
+      assert %{
         "set" => %{
-          "name" => updated_set.name,
-          "id" => updated_set.id
+          "name" => ^updated_set_name,
+          "id" => ^updated_set_id,
+          "set_exercises" => set_exercises
         },
         "message" => "Set updated"
-      }
-      assert updated_set.name == "New set name"
-
+      } = json_response(conn, 200)
     end
 
     @tag :authenticated
@@ -146,13 +163,16 @@ defmodule OurFitnessPalApiWeb.SetControllerTest do
     sets = Sessions.list_sets(set.session_id)
 
     assert sets == []
+    set_name = set.name
+    set_id = set.id
 
-    assert json_response(conn, 200) == %{
+    assert %{
       "set" => %{
-        "name" => set.name,
-        "id" => set.id
+        "name" => ^set_name,
+        "id" => ^set_id,
+        "set_exercises" => set_exercises
       },
       "message" => "Set deleted"
-    }
+    } = json_response(conn, 200)
   end
 end

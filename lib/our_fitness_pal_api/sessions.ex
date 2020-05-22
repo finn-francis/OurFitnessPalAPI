@@ -68,12 +68,12 @@ defmodule OurFitnessPalApi.Sessions do
   """
   def list_sets do
     Repo.all(Set)
-    |> Repo.preload([:session, :exercises])
+    |> Repo.preload([:session, :exercises, set_exercises: [:exercise]])
   end
 
   def list_sets(session_id) do
     Repo.all(Set, session_id: session_id)
-    |> Repo.preload([:session, :exercises])
+    |> Repo.preload([:session, :exercises, set_exercises: [:exercise]])
   end
 
   @doc """
@@ -92,7 +92,7 @@ defmodule OurFitnessPalApi.Sessions do
   """
   def get_set!(id) do
     Repo.get!(Set, id)
-    |> Repo.preload([:session, :exercises])
+    |> Repo.preload([:session, :exercises, set_exercises: [:exercise]])
   end
 
   @doc """
@@ -108,10 +108,15 @@ defmodule OurFitnessPalApi.Sessions do
 
   """
   def create_set(session_id, attrs \\ %{}) do
-    Repo.get!(Session, session_id)
+    set = Repo.get!(Session, session_id)
     |> Ecto.build_assoc(:sets)
     |> Set.changeset(attrs)
     |> Repo.insert
+
+    case set do
+      {:error, changeset} -> {:error, changeset}
+      {:ok, set} -> {:ok, Repo.preload(set, [:exercises, :session, set_exercises: [:exercise]])}
+    end
   end
 
   @doc """
@@ -127,10 +132,14 @@ defmodule OurFitnessPalApi.Sessions do
 
   """
   def update_set(%Set{} = set, attrs) do
-    set
-    |> Repo.preload(:set_exercises)
+    set = set
     |> Set.changeset(attrs)
     |> Repo.update()
+
+    case set do
+      {:error, changeset} -> {:error, changeset}
+      {:ok, set} -> {:ok, Repo.preload(set, [:exercises, :session, set_exercises: [:exercise]])}
+    end
   end
 
   @doc """
