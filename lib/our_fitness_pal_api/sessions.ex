@@ -72,7 +72,9 @@ defmodule OurFitnessPalApi.Sessions do
   end
 
   def list_sets(session_id) do
-    Repo.all(Set, session_id: session_id)
+    Set
+    |> where(session_id: ^session_id)
+    |> Repo.all()
     |> Repo.preload([:session, :exercises, set_exercises: [:exercise]])
   end
 
